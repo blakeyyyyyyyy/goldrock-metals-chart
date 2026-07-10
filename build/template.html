@@ -808,6 +808,24 @@ new ResizeObserver(()=>{clearTimeout(rt);rt=setTimeout(()=>render(),90);}).obser
 document.getElementById('yr').textContent=new Date().getFullYear();
 renderSelector(); renderHeadline(); renderNote(); render(); startAnim(); setLive(false);
 refreshLive(); setInterval(refreshLive,60000);
+
+// Seamless full-page embed: match the parent's viewport for the hero, and tell the
+// parent our true height so the whole page scrolls as one (no scrollbar inside the frame).
+(function(){
+  if(window.self===window.top) return;                 // only when embedded
+  const stage=document.querySelector('.stage');
+  let raf=null;
+  function report(){ if(raf) return; raf=requestAnimationFrame(function(){ raf=null;
+    parent.postMessage({goldrock:'height', height:Math.ceil(document.documentElement.scrollHeight)}, '*'); }); }
+  window.addEventListener('message', function(e){
+    const d=e.data;
+    if(d && d.goldrock==='viewport' && d.height){ if(stage) stage.style.minHeight=Math.max(420,d.height)+'px'; report(); }
+  });
+  try{ new ResizeObserver(report).observe(document.body); }catch(e){}
+  window.addEventListener('load', report);
+  setTimeout(report,300); setTimeout(report,1200);
+  parent.postMessage({goldrock:'ready'}, '*');           // ask the parent for its viewport height
+})();
 </script>
 </body>
 </html>

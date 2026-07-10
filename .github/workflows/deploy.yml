@@ -3,6 +3,8 @@ name: Build & Deploy GoldRock Metals Chart
 # Rebuilds the chart from the free keyless feeds and publishes to GitHub Pages
 # twice a day — no Mac required, fully hands-off. Times are UTC (GitHub cron).
 on:
+  push:
+    branches: [main]          # auto-deploy whenever the page is updated
   schedule:
     - cron: '15 11 * * *'   # ~06:15 ET — morning refresh
     - cron: '15 22 * * *'   # ~17:15 ET — after the NY spot close settles

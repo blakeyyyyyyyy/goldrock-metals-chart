@@ -1,0 +1,24 @@
+{
+  "built_utc": "2026-07-10T20:23:13+00:00",
+  "built_ny": "Jul 10, 2026 4:23 PM ET",
+  "asof": {
+    "gold": "2026-07-10",
+    "silver": "2026-07-10",
+    "platinum": "2026-07-10"
+  },
+  "start": {
+    "gold": "1915-01-01",
+    "silver": "1915-01-01",
+    "platinum": "1969-01-02"
+  },
+  "live": {
+    "gold": 4113.8,
+    "silver": 59.92,
+    "platinum": 1633.0
+  },
+  "points": {
+    "gold": 8013,
+    "silver": 7946,
+    "platinum": 7185
+  }
+}

@@ -1,0 +1,7 @@
+# macOS + logs
+.DS_Store
+*.log
+
+# large source-image options (only build/hero.jpg is used/embedded)
+build/hero_a.png
+build/hero_b.png

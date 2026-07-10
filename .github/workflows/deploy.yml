@@ -1,0 +1,46 @@
+name: Build & Deploy GoldRock Metals Chart
+
+# Rebuilds the chart from the free keyless feeds and publishes to GitHub Pages
+# twice a day — no Mac required, fully hands-off. Times are UTC (GitHub cron).
+on:
+  schedule:
+    - cron: '15 11 * * *'   # ~06:15 ET — morning refresh
+    - cron: '15 22 * * *'   # ~17:15 ET — after the NY spot close settles
+  workflow_dispatch: {}       # lets you run it on demand from the Actions tab
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Build the chart into ./public
+        env:
+          GOLDROCK_OUT_DIR: ${{ github.workspace }}/public
+        run: |
+          mkdir -p public
+          python3 build/build.py
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

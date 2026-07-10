@@ -1,0 +1,453 @@
+#!/usr/bin/env python3
+"""GoldRock Metal Exchange — historic + live price chart build pipeline.
+
+Assembles a single self-contained index.html holding REAL daily price history
+for Gold, Silver and Platinum, anchored to today's live spot, plus an
+ultra-long monthly tail so the MAX view reaches back ~a century. No paid /
+keyed API is used anywhere — every source below is a public, keyless endpoint.
+
+Sources (all keyless):
+  - goldprice.org  GetDataHistorical  -> real DAILY gold + silver (1973 / 1975 -> today)
+  - macrotrends.net /economic-data/2540/D -> real DAILY platinum (1969 -> today)
+  - macrotrends.net /economic-data/1333|1470/D -> MONTHLY gold + silver back to 1915
+                                                  (spliced in before the daily era)
+  - api.gold-api.com/price/{XAU,XAG,XPT} -> live spot, used to freshen today's tip
+
+The browser page ALSO re-fetches api.gold-api.com live on load (it sends
+Access-Control-Allow-Origin: *), so a visitor always sees current spot even
+between builds. This script keeps the baked baseline fresh and is meant to run
+twice daily from launchd (see ../launchd/*.plist).
+
+Writes atomically: builds into a temp file and swaps in only on success, so a
+failed fetch can never replace a good index.html with a broken one.
+
+Run manually:  python3 build.py
+"""
+import json, re, sys, os, math, datetime, traceback, urllib.request
+from zoneinfo import ZoneInfo
+
+NY = ZoneInfo('America/New_York')
+UTC = datetime.timezone.utc
+BUILD_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_DIR = os.path.dirname(BUILD_DIR)
+# OUT_DIR override lets CI (GitHub Actions) publish into a Pages folder; default = local project.
+OUT_DIR = os.environ.get('GOLDROCK_OUT_DIR', PROJECT_DIR)
+CANONICAL_OUT = os.path.join(OUT_DIR, 'index.html')
+MIRROR_OUT = '/tmp/goldrock-metals-chart/index.html'
+# Persisted per-day price snapshots — fills days the free source lags on so the
+# chart never shows a gap for a recent trading day (see load/save/splice_recent).
+RECENT_PATH = os.path.join(PROJECT_DIR, 'recent.json')
+LOG_PATH = os.path.expanduser('~/Library/Logs/goldrock-metals-chart.log')
+EPOCH = datetime.date(1970, 1, 1)
+UA = ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
+      '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36')
+GOLDPRICE_HEADERS = {'User-Agent': UA, 'Referer': 'https://goldprice.org/'}
+
+
+def log(msg):
+    line = '[{}] {}'.format(datetime.datetime.now(UTC).isoformat(timespec='seconds'), msg)
+    print(line, flush=True)
+    try:
+        os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
+        with open(LOG_PATH, 'a') as f:
+            f.write(line + '\n')
+    except OSError:
+        pass
+
+
+def fetch(url, headers=None, timeout=30):
+    req = urllib.request.Request(url, headers=headers or {'User-Agent': UA})
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return r.read().decode('utf-8', 'replace')
+
+
+def fetch_json(url, headers=None, timeout=30):
+    return json.loads(fetch(url, headers, timeout))
+
+
+def day_offset(d):
+    """days since 1970-01-01 for a datetime.date."""
+    return (d - EPOCH).days
+
+
+def iso_to_offset(iso):
+    y, m, dd = map(int, iso.split('-'))
+    return day_offset(datetime.date(y, m, dd))
+
+
+# ---------------------------------------------------------------- goldprice.org
+def parse_goldprice_raw(text):
+    """goldprice.org returns e.g. ["USD-XAU!,<off>,<price>,<off>,<price>,..."]
+    where <off> is (unix_seconds / 100). Returns list of (unix_seconds, price)."""
+    txt = text.strip().strip('[]"')
+    parts = txt.split(',')[1:]  # drop the "USD-XAU!" label
+    pts = []
+    for i in range(0, len(parts) - 1, 2):
+        try:
+            off = float(parts[i]); price = float(parts[i + 1])
+        except ValueError:
+            continue
+        if price > 0:
+            pts.append((off * 100.0, price))
+    return pts
+
+
+def to_daily(pts):
+    """Collapse intraday points to one (date, price) per UTC calendar day,
+    keeping the last price seen for that day. Returns [(iso_date, price), ...]."""
+    by_day, order = {}, []
+    for ts, price in pts:
+        key = datetime.datetime.utcfromtimestamp(ts).date().isoformat()
+        if key not in by_day:
+            order.append(key)
+        by_day[key] = price
+    return [(k, by_day[k]) for k in order]
+
+
+def fetch_goldprice_daily(sym):
+    raw = fetch('https://data-asg.goldprice.org/GetDataHistorical/USD-%s/0' % sym,
+                GOLDPRICE_HEADERS)
+    return to_daily(parse_goldprice_raw(raw))
+
+
+# ---------------------------------------------------------------- macrotrends
+def fetch_macrotrends(pid):
+    """macrotrends /economic-data/<pid>/D -> {"data":[[ms_epoch, price], ...]}.
+    Returns [(iso_date, price), ...]."""
+    url = 'https://www.macrotrends.net/economic-data/%s/D' % pid
+    headers = {'User-Agent': UA,
+               'Referer': 'https://www.macrotrends.net/%s/x' % pid,
+               'X-Requested-With': 'XMLHttpRequest'}
+    j = fetch_json(url, headers)
+    out = []
+    for ms, price in j['data']:
+        try:
+            p = float(price)
+        except (TypeError, ValueError):
+            continue
+        if p <= 0:
+            continue
+        d = datetime.datetime.utcfromtimestamp(ms / 1000.0).date()
+        out.append((d.isoformat(), p))
+    return out
+
+
+# ---------------------------------------------------------------- assembly
+def splice_long_tail(daily, monthly):
+    """Prepend the monthly points that predate the daily series so the MAX view
+    reaches back to the monthly source's start (~1915), then continue with the
+    real daily series. `monthly` and `daily` are both [(iso, price), ...]."""
+    if not daily:
+        return monthly
+    first_daily = daily[0][0]
+    pre = [(d, p) for d, p in monthly if d < first_daily]
+    return pre + daily
+
+
+def merge_live_tail(daily, live_price, today_key):
+    """Anchor the newest point to live spot. If today's trading date is already
+    in the history, overwrite it; if it's a fresh weekday not yet published,
+    append it. Never invents a new point on a weekend."""
+    if not daily or live_price is None:
+        return daily
+    last_key, _ = daily[-1]
+    if last_key == today_key:
+        daily[-1] = (last_key, live_price)
+    elif today_key > last_key:
+        is_weekend = datetime.date.fromisoformat(today_key).weekday() >= 5
+        gap = (datetime.date.fromisoformat(today_key) - datetime.date.fromisoformat(last_key)).days
+        if not is_weekend and gap <= 8:
+            daily.append((today_key, live_price))
+        else:
+            daily[-1] = (last_key, live_price)
+    return daily
+
+
+def fetch_yahoo_daily(sym):
+    """Best-effort daily closes from Yahoo (has same-day data, unlike goldprice.org's
+    ~1-day lag). Works from most cloud IPs; may be rate-limited (HTTP 429) from
+    residential/datacenter IPs — failure is non-fatal. Returns [(iso, close), ...]."""
+    import http.cookiejar
+    cj = http.cookiejar.CookieJar()
+    op = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
+    hdr = {'User-Agent': UA, 'Accept': 'application/json,text/plain,*/*'}
+
+    def og(u):
+        return op.open(urllib.request.Request(u, headers=hdr), timeout=20).read().decode('utf-8', 'replace')
+
+    try:
+        og('https://finance.yahoo.com/quote/' + sym)   # seed consent cookie
+    except Exception:
+        pass
+    crumb = ''
+    for host in ('query1.finance.yahoo.com', 'query2.finance.yahoo.com'):
+        try:
+            crumb = og('https://%s/v1/test/getcrumb' % host).strip(); break
+        except Exception:
+            continue
+    for host in ('query1.finance.yahoo.com', 'query2.finance.yahoo.com'):
+        try:
+            u = ('https://%s/v8/finance/chart/%s?range=1mo&interval=1d' % (host, sym)
+                 + ('&crumb=' + crumb if crumb else ''))
+            j = json.loads(og(u))
+            res = j['chart']['result'][0]
+            ts = res['timestamp']; cl = res['indicators']['quote'][0]['close']
+            return [(datetime.datetime.utcfromtimestamp(t).date().isoformat(), float(c))
+                    for t, c in zip(ts, cl) if c]
+        except Exception:
+            continue
+    return []
+
+
+def fill_from_yahoo(daily, ysym):
+    """Append recent trading days that goldprice.org hasn't published yet, using
+    Yahoo's same-day daily closes. No-op if Yahoo is unavailable."""
+    yd = fetch_yahoo_daily(ysym)
+    if not yd or not daily:
+        return daily, 0
+    have = {d for d, _ in daily}
+    last = daily[-1][0]; added = 0
+    for d, c in yd:
+        if d > last and d not in have and datetime.date.fromisoformat(d).weekday() < 5:
+            daily.append((d, round(c, 2))); added += 1
+    daily.sort(key=lambda x: x[0])
+    return daily, added
+
+
+NBU_CC = {'gold': 'XAU', 'silver': 'XAG', 'platinum': 'XPT'}
+
+
+def nbu_rate(ymd, cc):
+    """One NBU investment-metal / currency rate (UAH per oz, or UAH per unit)."""
+    j = fetch_json('https://bank.gov.ua/NBU_Exchange/exchange_site?json&date=%s&valcode=%s' % (ymd, cc))
+    return float(j[0]['rate']) if j else None
+
+
+def _next_trading_day(d):
+    d = d + datetime.timedelta(days=1)
+    while d.weekday() >= 5:
+        d += datetime.timedelta(days=1)
+    return d
+
+
+def fill_from_nbu(daily, metal, today_key):
+    """Fill recent trading days goldprice.org hasn't published yet from the National
+    Bank of Ukraine's keyless investment-metal feed (UAH/oz -> USD/oz via NBU's own
+    USD rate). NBU's value is effective the next business day, so NBU date N reflects
+    the market's previous trading day. Tracks London spot within ~$10. Best-effort."""
+    if not daily:
+        return daily, 0
+    cc = NBU_CC.get(metal)
+    if not cc:
+        return daily, 0
+    have = {d for d, _ in daily}
+    last = datetime.date.fromisoformat(daily[-1][0])
+    today = datetime.date.fromisoformat(today_key)
+    added = 0
+    m = last + datetime.timedelta(days=1)
+    while m < today:                                   # up to yesterday; today comes from live spot
+        if m.weekday() < 5 and m.isoformat() not in have:
+            nd = _next_trading_day(m)                  # NBU date whose value reflects market day m
+            if nd <= today:
+                try:
+                    metal_uah = nbu_rate(nd.strftime('%Y%m%d'), cc)
+                    usd_uah = nbu_rate(nd.strftime('%Y%m%d'), 'USD')
+                    if metal_uah and usd_uah:
+                        daily.append((m.isoformat(), round(metal_uah / usd_uah, 2)))
+                        added += 1
+                except Exception:
+                    pass
+        m += datetime.timedelta(days=1)
+    daily.sort(key=lambda x: x[0])
+    return daily, added
+
+
+def load_recent():
+    try:
+        with open(RECENT_PATH) as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def save_recent(rec):
+    keys = sorted(rec)[-70:]                      # keep ~10 weeks of snapshots
+    rec = {k: rec[k] for k in keys}
+    try:
+        with open(RECENT_PATH, 'w') as f:
+            json.dump(rec, f)
+    except OSError:
+        pass
+
+
+def splice_recent(daily, metal, rec):
+    """Append recorded daily snapshots (captured live on prior builds) for any
+    trading day newer than the source's last published date. This closes the
+    1-2 day gap the free feed leaves before it publishes a session's close."""
+    if not daily:
+        return daily
+    last = daily[-1][0]
+    for d in sorted(rec):
+        v = rec.get(d, {}).get(metal)
+        if d > last and v and datetime.date.fromisoformat(d).weekday() < 5:
+            daily.append((d, float(v)))
+            last = d
+    return daily
+
+
+def thin(daily, weekly_before='2006-01-01'):
+    """Keep full daily resolution for the last ~20 years (what visitors zoom
+    into) and collapse older history to one point per ISO week. Cuts file size
+    ~2x with no visible loss when zoomed out. Always keeps the first & last."""
+    if not daily:
+        return daily
+    out, seen_week = [], set()
+    for i, (iso, price) in enumerate(daily):
+        if iso >= weekly_before or i == 0 or i == len(daily) - 1:
+            out.append((iso, price))
+            continue
+        y, m, d = map(int, iso.split('-'))
+        wk = datetime.date(y, m, d).isocalendar()[:2]  # (iso_year, iso_week)
+        if wk not in seen_week:
+            seen_week.add(wk)
+            out.append((iso, price))
+    return out
+
+
+def round_price(p):
+    if p >= 100:
+        return round(p, 1)
+    if p >= 10:
+        return round(p, 2)
+    return round(p, 3)
+
+
+def encode(daily):
+    return [[iso_to_offset(iso), round_price(p)] for iso, p in daily]
+
+
+def run():
+    log('build started')
+    today_key = datetime.datetime.now(NY).strftime('%Y-%m-%d')
+
+    # --- live spot (keyless, also used by the browser on load) ---
+    live = {}
+    for key, sym in (('gold', 'XAU'), ('silver', 'XAG'), ('platinum', 'XPT')):
+        try:
+            live[key] = float(fetch_json('https://api.gold-api.com/price/' + sym)['price'])
+        except Exception as e:
+            live[key] = None
+            log('WARN live %s failed: %s' % (key, e))
+    log('live spot: %s' % live)
+
+    # --- real daily history ---
+    gold_daily = fetch_goldprice_daily('XAU')
+    silver_daily = fetch_goldprice_daily('XAG')
+    platinum_daily = fetch_macrotrends(2540)
+    log('daily raw: gold=%d(%s..%s) silver=%d(%s..%s) platinum=%d(%s..%s)' % (
+        len(gold_daily), gold_daily[0][0], gold_daily[-1][0],
+        len(silver_daily), silver_daily[0][0], silver_daily[-1][0],
+        len(platinum_daily), platinum_daily[0][0], platinum_daily[-1][0]))
+
+    # --- splice ultra-long monthly tail (gold/silver back to ~1915) ---
+    try:
+        gold_daily = splice_long_tail(gold_daily, fetch_macrotrends(1333))
+        silver_daily = splice_long_tail(silver_daily, fetch_macrotrends(1470))
+        log('spliced long tail: gold from %s, silver from %s' % (gold_daily[0][0], silver_daily[0][0]))
+    except Exception as e:
+        log('WARN long tail splice failed (keeping daily-only): %s' % e)
+
+    # --- fill days goldprice.org hasn't published yet (Yahoo works from cloud IPs;
+    #     NBU official feed works everywhere incl. this Mac) ---
+    try:
+        gold_daily, ng = fill_from_yahoo(gold_daily, 'XAUUSD=X')
+        silver_daily, ns = fill_from_yahoo(silver_daily, 'XAGUSD=X')
+        log('yahoo fill: gold +%d silver +%d' % (ng, ns))
+    except Exception as e:
+        log('WARN yahoo fill failed: %s' % e)
+    try:
+        gold_daily, ng2 = fill_from_nbu(gold_daily, 'gold', today_key)
+        silver_daily, ns2 = fill_from_nbu(silver_daily, 'silver', today_key)
+        platinum_daily, np2 = fill_from_nbu(platinum_daily, 'platinum', today_key)
+        log('nbu fill: gold +%d silver +%d platinum +%d' % (ng2, ns2, np2))
+    except Exception as e:
+        log('WARN nbu fill failed: %s' % e)
+
+    # --- record today's live into the snapshot store, then fill any days the
+    #     source lags on from previously-recorded snapshots (no more gaps) ---
+    recent = load_recent()
+    if datetime.date.fromisoformat(today_key).weekday() < 5:
+        recent.setdefault(today_key, {})
+        for k in ('gold', 'silver', 'platinum'):
+            if live.get(k):
+                recent[today_key][k] = round(live[k], 4)
+    gold_daily = splice_recent(gold_daily, 'gold', recent)
+    silver_daily = splice_recent(silver_daily, 'silver', recent)
+    platinum_daily = splice_recent(platinum_daily, 'platinum', recent)
+    save_recent(recent)
+    log('recent snapshots: %d days; tails now gold..%s silver..%s platinum..%s' % (
+        len(recent), gold_daily[-1][0], silver_daily[-1][0], platinum_daily[-1][0]))
+
+    # --- anchor today's tip to live spot ---
+    gold_daily = merge_live_tail(gold_daily, live['gold'], today_key)
+    silver_daily = merge_live_tail(silver_daily, live['silver'], today_key)
+    platinum_daily = merge_live_tail(platinum_daily, live['platinum'], today_key)
+
+    # --- thin old history, encode compactly ---
+    series = {
+        'gold': encode(thin(gold_daily)),
+        'silver': encode(thin(silver_daily)),
+        'platinum': encode(thin(platinum_daily)),
+    }
+
+    # fall back to the last baked-in tip if a live fetch failed
+    for k, d in (('gold', gold_daily), ('silver', silver_daily), ('platinum', platinum_daily)):
+        if live.get(k) is None and d:
+            live[k] = d[-1][1]
+
+    meta = {
+        'built_utc': datetime.datetime.now(UTC).isoformat(timespec='seconds'),
+        'built_ny': datetime.datetime.now(NY).strftime('%b %-d, %Y %-I:%M %p ET'),
+        'asof': {'gold': gold_daily[-1][0], 'silver': silver_daily[-1][0], 'platinum': platinum_daily[-1][0]},
+        'start': {'gold': gold_daily[0][0], 'silver': silver_daily[0][0], 'platinum': platinum_daily[0][0]},
+        'live': {k: round(v, 2) if v else v for k, v in live.items()},
+        'points': {k: len(v) for k, v in series.items()},
+    }
+
+    data_json = json.dumps(series, separators=(',', ':'))
+    meta_json = json.dumps(meta, separators=(',', ':'))
+
+    with open(os.path.join(BUILD_DIR, 'template.html')) as f:
+        tpl = f.read()
+    import base64
+    with open(os.path.join(BUILD_DIR, 'logo-gold.svg'), 'rb') as f:
+        logo_uri = 'data:image/svg+xml;base64,' + base64.b64encode(f.read()).decode('ascii')
+    with open(os.path.join(BUILD_DIR, 'hero.jpg'), 'rb') as f:
+        hero_uri = 'data:image/jpeg;base64,' + base64.b64encode(f.read()).decode('ascii')
+    final = (tpl.replace('/*__DATA_JSON__*/0', data_json)
+                .replace('/*__META_JSON__*/0', meta_json)
+                .replace('__LOGO_URI__', logo_uri)
+                .replace('__HERO_URI__', hero_uri))
+
+    for out in (CANONICAL_OUT, MIRROR_OUT):
+        try:
+            os.makedirs(os.path.dirname(out), exist_ok=True)
+            tmp = out + '.tmp'
+            with open(tmp, 'w') as f:
+                f.write(final)
+            os.replace(tmp, out)
+            log('wrote %s (%d bytes)' % (out, len(final)))
+        except OSError as e:
+            log('WARN could not write %s: %s' % (out, e))
+
+    with open(os.path.join(PROJECT_DIR, 'build-meta.json'), 'w') as f:
+        json.dump(meta, f, indent=2)
+    log('build ok — points %s' % meta['points'])
+
+
+if __name__ == '__main__':
+    try:
+        run()
+    except Exception:
+        log('BUILD FAILED:\n' + traceback.format_exc())
+        sys.exit(1)

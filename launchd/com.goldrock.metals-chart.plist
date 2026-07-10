@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.goldrock.metals-chart</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>/Users/blake/goldrock-metals-chart/build/build.py</string>
+  </array>
+
+  <!-- Local-time schedule. 15:15 = ~6:15pm ET (after NY spot settles),
+       06:00 = ~9:00am ET catch-up. launchd fires any missed run on next wake. -->
+  <key>StartCalendarInterval</key>
+  <array>
+    <dict><key>Hour</key><integer>15</integer><key>Minute</key><integer>15</integer></dict>
+    <dict><key>Hour</key><integer>6</integer><key>Minute</key><integer>0</integer></dict>
+  </array>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>/Users/blake/Library/Logs/goldrock-metals-chart-launchd.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/blake/Library/Logs/goldrock-metals-chart-launchd.log</string>
+</dict>
+</plist>

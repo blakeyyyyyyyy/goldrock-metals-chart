@@ -11,6 +11,11 @@ Sources (all keyless):
   - macrotrends.net /economic-data/2540/D -> real DAILY platinum (1969 -> today)
   - macrotrends.net /economic-data/1333|1470/D -> MONTHLY gold + silver back to 1915
                                                   (spliced in before the daily era)
+  - finance.yahoo.com chart API -> same-day closes to fill goldprice.org's ~1-day lag
+                                   (works from cloud IPs; often 429 from residential)
+  - bank.gov.ua (National Bank of Ukraine) -> official XAU/XAG/XPT reference rates,
+                                   UAH/oz -> USD/oz, fills recent gaps from anywhere
+  - recent.json -> our own recorded live snapshots, replayed for any day still missing
   - api.gold-api.com/price/{XAU,XAG,XPT} -> live spot, used to freshen today's tip
 
 The browser page ALSO re-fetches api.gold-api.com live on load (it sends
@@ -55,10 +60,20 @@ def log(msg):
         pass
 
 
-def fetch(url, headers=None, timeout=30):
-    req = urllib.request.Request(url, headers=headers or {'User-Agent': UA})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return r.read().decode('utf-8', 'replace')
+def fetch(url, headers=None, timeout=30, tries=2):
+    """GET with one retry — a transient blip in a scheduled CI run shouldn't kill the refresh."""
+    last = None
+    for attempt in range(tries):
+        try:
+            req = urllib.request.Request(url, headers=headers or {'User-Agent': UA})
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return r.read().decode('utf-8', 'replace')
+        except Exception as e:
+            last = e
+            if attempt + 1 < tries:
+                import time
+                time.sleep(3)
+    raise last
 
 
 def fetch_json(url, headers=None, timeout=30):
@@ -97,7 +112,7 @@ def to_daily(pts):
     keeping the last price seen for that day. Returns [(iso_date, price), ...]."""
     by_day, order = {}, []
     for ts, price in pts:
-        key = datetime.datetime.utcfromtimestamp(ts).date().isoformat()
+        key = datetime.datetime.fromtimestamp(ts, tz=UTC).date().isoformat()
         if key not in by_day:
             order.append(key)
         by_day[key] = price
@@ -127,7 +142,7 @@ def fetch_macrotrends(pid):
             continue
         if p <= 0:
             continue
-        d = datetime.datetime.utcfromtimestamp(ms / 1000.0).date()
+        d = datetime.datetime.fromtimestamp(ms / 1000.0, tz=UTC).date()
         out.append((d.isoformat(), p))
     return out
 
@@ -192,7 +207,7 @@ def fetch_yahoo_daily(sym):
             j = json.loads(og(u))
             res = j['chart']['result'][0]
             ts = res['timestamp']; cl = res['indicators']['quote'][0]['close']
-            return [(datetime.datetime.utcfromtimestamp(t).date().isoformat(), float(c))
+            return [(datetime.datetime.fromtimestamp(t, tz=UTC).date().isoformat(), float(c))
                     for t, c in zip(ts, cl) if c]
         except Exception:
             continue
@@ -206,8 +221,13 @@ def fill_from_yahoo(daily, ysym):
     if not yd or not daily:
         return daily, 0
     have = {d for d, _ in daily}
+    today_utc = datetime.datetime.now(UTC).date().isoformat()
     last = daily[-1][0]; added = 0
     for d, c in yd:
+        # skip Yahoo's current-day bar — it's an in-progress price, not a close
+        # (today's tip is anchored to live spot in merge_live_tail instead)
+        if d >= today_utc:
+            continue
         if d > last and d not in have and datetime.date.fromisoformat(d).weekday() < 5:
             daily.append((d, round(c, 2))); added += 1
     daily.sort(key=lambda x: x[0])
@@ -328,7 +348,9 @@ def encode(daily):
 
 def run():
     log('build started')
-    today_key = datetime.datetime.now(NY).strftime('%Y-%m-%d')
+    # UTC, to match how every source keys its days — an NY date would lag UTC by one
+    # day between 8pm ET and midnight ET and misfile evening builds.
+    today_key = datetime.datetime.now(UTC).strftime('%Y-%m-%d')
 
     # --- live spot (keyless, also used by the browser on load) ---
     live = {}
@@ -344,6 +366,12 @@ def run():
     gold_daily = fetch_goldprice_daily('XAU')
     silver_daily = fetch_goldprice_daily('XAG')
     platinum_daily = fetch_macrotrends(2540)
+    # refuse to publish from an empty or gutted feed (format change, error page, truncation) —
+    # the atomic write keeps the last good chart live, and this names the culprit in the log
+    for name, s in (('goldprice gold', gold_daily), ('goldprice silver', silver_daily),
+                    ('macrotrends platinum', platinum_daily)):
+        if len(s) < 5000:
+            raise RuntimeError('%s returned only %d points — refusing to publish' % (name, len(s)))
     log('daily raw: gold=%d(%s..%s) silver=%d(%s..%s) platinum=%d(%s..%s)' % (
         len(gold_daily), gold_daily[0][0], gold_daily[-1][0],
         len(silver_daily), silver_daily[0][0], silver_daily[-1][0],
@@ -440,8 +468,12 @@ def run():
         except OSError as e:
             log('WARN could not write %s: %s' % (out, e))
 
-    with open(os.path.join(PROJECT_DIR, 'build-meta.json'), 'w') as f:
-        json.dump(meta, f, indent=2)
+    for meta_dir in {PROJECT_DIR, OUT_DIR}:          # OUT_DIR copy ships with the Pages artifact
+        try:
+            with open(os.path.join(meta_dir, 'build-meta.json'), 'w') as f:
+                json.dump(meta, f, indent=2)
+        except OSError as e:
+            log('WARN could not write build-meta.json to %s: %s' % (meta_dir, e))
     log('build ok — points %s' % meta['points'])
 
 

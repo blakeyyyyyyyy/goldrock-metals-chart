@@ -4,23 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Live Gold, Silver &amp; Platinum Spot Prices &amp; Charts — GoldRock Metal Exchange</title>
-<meta name="description" content="Live and historic spot prices for gold, silver and platinum — a century of history, updated in real time. GoldRock Metal Exchange.">
+<meta name="description" content="Live and historic spot prices for gold, silver and platinum — a century of history, with live spot updates. GoldRock Metal Exchange.">
 <meta name="robots" content="noindex, nofollow">
-<link rel="canonical" href="https://www.goldrockmetalexchange.com/prices">
+<link rel="canonical" href="https://www.goldrockmetalexchange.com/live-prices/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="GoldRock Metal Exchange">
 <meta property="og:title" content="Live Gold, Silver &amp; Platinum Spot Prices &amp; Charts — GoldRock">
-<meta property="og:description" content="Live gold, silver and platinum spot prices with a century of history, updated in real time. GoldRock Metal Exchange.">
-<meta property="og:url" content="https://www.goldrockmetalexchange.com/prices">
+<meta property="og:description" content="Live gold, silver and platinum spot prices with a century of history and live spot updates. GoldRock Metal Exchange.">
+<meta property="og:url" content="https://www.goldrockmetalexchange.com/live-prices/">
 <meta property="og:image" content="https://www.goldrockmetalexchange.com/wp-content/uploads/2026/04/goldrock-logo.webp">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Live Gold, Silver &amp; Platinum Spot Prices &amp; Charts — GoldRock">
-<meta name="twitter:description" content="Live &amp; historic gold, silver &amp; platinum spot prices — a century of history, in real time.">
+<meta name="twitter:description" content="Live gold, silver &amp; platinum spot prices, with a century of history.">
 <meta name="theme-color" content="#0a0a0c">
 <link rel="icon" type="image/svg+xml" href="__LOGO_URI__">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"GoldRock Metal Exchange","url":"https://www.goldrockmetalexchange.com","telephone":"+1-888-859-0978","description":"Family-run precious-metals brokerage — physical gold, silver, platinum and Precious-Metals IRAs."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"GoldRock Metal Exchange","url":"https://www.goldrockmetalexchange.com","telephone":"+1-888-859-0978","description":"Family-run precious-metals dealer — physical gold, silver, platinum and Precious-Metals IRAs."}</script>
 <style>
   :root{
+    color-scheme:dark; accent-color:#e3ba4e;
+    --ease:cubic-bezier(.23,1,.32,1); --dur:.24s;
     --bg:#0a0a0c; --bg2:#060608; --panel:#111014;
     --line:rgba(227,186,78,.14); --line-soft:rgba(227,186,78,.06);
     --gold:#e3ba4e; --gold-deep:#b8932f; --gold-bright:#ffe6a3;
@@ -33,7 +35,9 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
-  body{background:var(--bg2);color:var(--ivory);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden;animation:pagein .55s ease-out}
+  ::selection{background:rgba(227,186,78,.28);color:#fff6de}
+  button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:1.5px solid rgba(227,186,78,.65);outline-offset:2px}
+  body{background:var(--bg2);color:var(--ivory);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden;animation:pagein .55s ease-out;-webkit-tap-highlight-color:transparent}
   @keyframes pagein{from{opacity:0}to{opacity:1}}
   html{scrollbar-color:#3a3324 #0a0a0c;scrollbar-width:thin}
   ::-webkit-scrollbar{width:10px;height:10px}
@@ -67,7 +71,7 @@
     font-size:clamp(52px,8.6vw,124px);
     background:linear-gradient(100deg,#f6f3ec 40%,#ffe9ae 50%,#f6f3ec 60%);background-size:220% 100%;
     -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
-    filter:drop-shadow(0 6px 30px rgba(0,0,0,.65));animation:wmshine 8s ease-in-out infinite}
+    filter:drop-shadow(0 6px 30px rgba(0,0,0,.65));animation:wmshine 7s ease-in-out .8s 2}   /* greets, then rests — perpetual glitter reads casino */
   @keyframes wmshine{0%{background-position:120% 0}55%{background-position:-80% 0}100%{background-position:-80% 0}}
   .tagline{margin-top:clamp(10px,1.8vh,20px);font-size:clamp(17px,2.1vw,27px);font-weight:400;color:#e9e3d6;
     text-shadow:0 2px 22px rgba(0,0,0,.8)}
@@ -104,8 +108,9 @@
     color:var(--muted);cursor:pointer;font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.06em;
     padding:7px 14px;border-radius:9px;transition:all .16s;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
   .tframes button:hover{color:var(--ivory);border-color:rgba(227,186,78,.4)}
-  .tframes button.on{color:#160f02;background:linear-gradient(180deg,var(--gold-bright),var(--gold));
-    border-color:var(--gold);box-shadow:0 3px 14px rgba(227,186,78,.35)}
+  /* quiet active state — solid gold is reserved for the money CTAs */
+  .tframes button.on{color:var(--ivory);background:linear-gradient(180deg,rgba(227,186,78,.22),rgba(227,186,78,.06));
+    border-color:rgba(227,186,78,.36)}
   .zoom{display:flex;gap:4px;margin-left:auto;background:rgba(8,8,10,.42);border:1px solid var(--line);border-radius:9px;padding:3px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
   .zoom button{appearance:none;border:0;background:transparent;color:var(--muted);cursor:pointer;font-family:var(--sans);
     font-weight:700;font-size:14px;line-height:1;min-width:30px;padding:6px 9px;border-radius:7px;transition:all .16s}
@@ -122,8 +127,11 @@
   .iconbtn{appearance:none;border:1px solid var(--line);background:rgba(8,8,10,.42);color:var(--muted);cursor:pointer;
     font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.06em;padding:8px 13px;border-radius:9px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:all .16s}
   .iconbtn:hover{color:var(--gold-bright);border-color:rgba(227,186,78,.4)}
-  .iconbtn.on{color:#160f02;background:linear-gradient(180deg,var(--gold-bright),var(--gold));border-color:var(--gold);box-shadow:0 3px 14px rgba(227,186,78,.35)}
-  .iconbtn.on:hover{color:#160f02}
+  .iconbtn.on{color:var(--ivory);background:linear-gradient(180deg,rgba(227,186,78,.22),rgba(227,186,78,.06));border-color:rgba(227,186,78,.36)}
+  .iconbtn.on:hover{color:var(--gold-bright)}
+  .mtab,.tframes button,.zoom button,.iconbtn,.perfchip,.daterange #dr-go{transition:all var(--dur) var(--ease)}
+  .big .cur{font-size:.55em;vertical-align:.42em;color:var(--muted);margin-right:1px}
+  .big .cents{font-size:.55em;color:var(--muted)}
   .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
   /* the chart fills the rest of the stage */
@@ -188,6 +196,15 @@
   .al-input input{border:0;background:transparent;padding:13px 4px;width:78px;color:var(--ivory)}
   .al-input select{border:0;background:transparent;padding:13px 2px;color:var(--muted);font-size:13px;cursor:pointer}
   .alerts-form input[type=email]{min-width:200px}
+  .alerts-form input[type=tel]{min-width:150px}
+  .al-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+  .al-chip{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--ivory);
+    background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:20px;padding:7px 12px}
+  .al-chip b{color:var(--gold-bright);font-weight:600}
+  .al-chip button{appearance:none;border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px}
+  .al-chip button:hover{color:var(--down)}
+  .al-chip.hit{border-color:rgba(92,201,138,.6);box-shadow:0 0 14px -4px rgba(92,201,138,.5)}
+  .al-chip.hit b{color:var(--up)}
   .alerts-form .btn-gold{border:0;cursor:pointer;padding:13px 26px}
   .alerts-feedback{margin-top:18px;font-size:14px;color:var(--gold-bright);min-height:20px;letter-spacing:.01em;
     text-shadow:0 1px 8px rgba(0,0,0,.6)}
@@ -278,8 +295,8 @@
               <button data-tf="10Y">10Y</button>
               <button data-tf="MAX">MAX</button>
             </div>
-            <div class="zoom" id="zoom" title="Zoom — or scroll / drag the chart, double-click to reset">
-              <button data-z="out" aria-label="Zoom out">–</button>
+            <div class="zoom" id="zoom" title="Zoom — or scroll or drag the chart; double-click resets">
+              <button data-z="out" aria-label="Zoom out">−</button>
               <button data-z="in" aria-label="Zoom in">+</button>
               <button data-z="reset" aria-label="Reset zoom">Reset</button>
             </div>
@@ -289,14 +306,14 @@
               <input type="date" id="dr-to" aria-label="To date">
               <button id="dr-go">Go</button>
             </div>
-            <button class="iconbtn" id="cmp" title="Overlay all three metals — % change over the current window" aria-pressed="false">⇄ Compare</button>
+            <button class="iconbtn" id="cmp" title="Overlay all three metals — % change over the current period" aria-pressed="false">⇄ Compare</button>
             <button class="iconbtn" id="dl-chart" title="Download this chart as an image" aria-label="Download chart image">⤓ Save</button>
           </div>
         </div>
         <div class="readout">
           <div class="livepill" id="livepill" title="Live spot price status"><span class="dot"></span><span id="livepill-txt">LIVE</span></div>
           <div class="big tnum" id="hl-price">—</div>
-          <div class="sub tnum"><span id="hl-delta">—</span><span class="rl" id="hl-range"></span></div>
+          <div class="sub tnum"><span id="hl-delta">—</span><span class="rl" id="hl-range"></span><span class="rl" id="hl-today"></span></div>
         </div>
       </div>
 
@@ -322,26 +339,28 @@
         <div class="alerts-head">
           <div class="orn" aria-hidden="true"><span></span>◆<span></span></div>
           <div class="eyebrow">Spot price alerts</div>
-          <h2>Get notified the moment the spot price hits your target.</h2>
-          <p>Set a target and we’ll let you know the instant gold, silver, or platinum reaches it.</p>
+          <h2>Set your target. We watch the spot price.</h2>
+          <p>Pick a target and this page watches live spot for you while it’s open. Add your number and a GoldRock specialist can confirm your alert personally.</p>
         </div>
         <form class="alerts-form" id="alerts-form">
           <span class="al-lead">Alert me when</span>
           <select id="al-metal" aria-label="Metal"><option value="gold">Gold</option><option value="silver">Silver</option><option value="platinum">Platinum</option></select>
           <select id="al-dir" aria-label="Direction"><option value="above">rises</option><option value="below">falls</option></select>
-          <span class="al-input"><input id="al-value" type="number" step="any" inputmode="decimal" value="5" placeholder="5" aria-label="Amount"><select id="al-unit" aria-label="Percent or spot price"><option value="pct">%</option><option value="usd">to $ spot price</option></select></span>
+          <span class="al-input"><input id="al-value" type="number" step="any" inputmode="decimal" value="5" placeholder="5" aria-label="Amount"><select id="al-unit" aria-label="Percent or dollar target"><option value="pct">%</option><option value="usd">$ target</option></select></span>
           <input id="al-email" type="email" placeholder="you@email.com" aria-label="Email address" required>
-          <button type="submit" class="btn btn-gold">Set my alert</button>
+          <input id="al-phone" type="tel" inputmode="tel" placeholder="phone (optional)" aria-label="Phone number (optional)">
+          <button type="submit" class="btn btn-gold">Watch this price for me</button>
         </form>
         <div class="alerts-feedback" id="alerts-feedback" aria-live="polite"></div>
         <div class="alerts-msg" id="alerts-msg" role="status" aria-live="polite"></div>
+        <div class="al-chips" id="al-chips" aria-label="Your saved alerts"></div>
         <p class="alerts-alt">Prefer to talk it through? <a href="tel:+18888590978">Call (888)&nbsp;859-0978</a> and a specialist will set it up with you.</p>
       </div>
 
       <div class="cta-lux">
-        <div class="eyebrow">Speak with a specialist</div>
+        <div class="eyebrow">Work with GoldRock</div>
         <h2>Own the metal, <em>not just the chart.</em></h2>
-        <p>Work directly with a GoldRock specialist on physical gold, silver, and platinum — or a Precious-Metals IRA. Clear guidance, fees disclosed up front, and insured, fully documented delivery.</p>
+        <p>Work directly with a GoldRock specialist on physical gold, silver, and platinum — or a Precious-Metals IRA. Clear guidance and insured, fully documented delivery.</p>
         <div class="cta-actions">
           <a class="btn btn-gold" href="tel:+18888590978">Call (888)&nbsp;859-0978</a>
           <a class="btn-line" href="#alerts">Set a price alert</a>
@@ -415,7 +434,7 @@ const CONFIG = { alertsEndpoint:'', contactEmail:'contact@goldrockmetalexchange.
 
 // key market events, marked on the long-range views ("the record beneath the price")
 const ANNOS=[['1971-08-15','Gold standard ends'],['1980-01-21','1980 peak'],['2008-09-15','Financial crisis'],
-  ['2011-09-06','2011 high'],['2020-08-06','COVID record'],['2026-01-26','2026 surge']]
+  ['2011-09-06','2011 peak'],['2020-08-06','COVID record'],['2026-01-26','2026 surge']]
   .map(a=>[Date.parse(a[0]+'T00:00:00Z'),a[1]]);
 
 function series(metal){
@@ -426,6 +445,10 @@ function series(metal){
 }
 function fmtMoney(v, dec){ if(v==null||isNaN(v)) return '—';
   return '$'+v.toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec}); }
+function fmtMoneyRich(v, dec){ if(v==null||isNaN(v)) return '—';   // small $/cents, editorial style
+  const s=v.toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+  const i=s.indexOf('.'); const whole=i<0?s:s.slice(0,i), cents=i<0?'':s.slice(i);
+  return '<span class="cur">$</span>'+whole+(cents?'<span class="cents">'+cents+'</span>':''); }
 function hexA(hex,a){ hex=hex.replace('#',''); if(hex.length===3)hex=hex.split('').map(c=>c+c).join('');
   const r=parseInt(hex.slice(0,2),16),g=parseInt(hex.slice(2,4),16),b=parseInt(hex.slice(4,6),16); return `rgba(${r},${g},${b},${a})`; }
 // the UI's glow accents follow the selected metal (gold stays the brand base)
@@ -843,7 +866,18 @@ function computeStats(metal){
 }
 function renderHeadline(){
   const m=METALS[state.metal], st=computeStats(state.metal), dec=m.decimals;
-  document.getElementById('hl-price').textContent=fmtMoney(st.cur,dec);
+  document.getElementById('hl-price').innerHTML=fmtMoneyRich(st.cur,dec);
+  // permanent "today" readout, anchored to the last close before the newest session —
+  // the default 1Y view should still answer "what has it done today?"
+  const s0=series(state.metal), lastP=s0[s0.length-1];
+  const dayMid=Math.floor(lastP[0]/DAY)*DAY;
+  let ai=s0.length-2; while(ai>0 && s0[ai][0]>=dayMid) ai--;
+  const anch=s0[ai], tEl=document.getElementById('hl-today');
+  if(tEl){ if(anch && anch[1] && anch[0]<lastP[0]){
+    const dd2=lastP[1]-anch[1], pc3=dd2/anch[1]*100;
+    const isToday=new Date().toISOString().slice(0,10)===new Date(lastP[0]).toISOString().slice(0,10);
+    tEl.innerHTML='<span class="'+(dd2>=0?'up':'down')+'">'+(dd2>=0?'▲':'▼')+' '+Math.abs(pc3).toFixed(2)+'% '+(isToday?'today':'this session')+'</span>';
+  } else tEl.textContent=''; }
   const up=st.chg>=0, d=document.getElementById('hl-delta');
   d.className=up?'up':'down';
   d.textContent=(up?'▲ ':'▼ ')+fmtMoney(Math.abs(st.chg),dec)+' ('+(up?'+':'−')+Math.abs(st.pct).toFixed(2)+'%)';
@@ -896,13 +930,13 @@ function renderNote(){
     const as=META.asof||{};
     const newest=Math.max.apply(null,['gold','silver','platinum'].map(k=>Date.parse((as[k]||'1970-01-01')+'T00:00:00Z')));
     if(isFinite(newest) && Date.now()-newest > 7*DAY)
-      staleNote=' <span style="color:#d9a94e">⚠ The historical series is awaiting its scheduled refresh — the live spot price above remains current.</span>';
+      staleNote=' <span style="color:#d9a94e">⚠ The historical series is awaiting its scheduled refresh — the live spot quote above updates separately in your browser.</span>';
   }catch(e){}
   document.getElementById('datanote').innerHTML=
     `<b>Data:</b> London spot for gold &amp; silver (history back to ${(st.gold||'').slice(0,4)} / ${(st.silver||'').slice(0,4)}) and platinum daily back to ${(st.platinum||'').slice(0,4)}, `
-    +`from public keyless feeds (goldprice.org, macrotrends), with the most recent sessions filled from official central-bank reference rates and recorded live quotes. Live spot via gold-api.com. `
+    +`from public market-data sources (goldprice.org, macrotrends), with the most recent sessions filled from official central-bank reference rates and recorded live quotes. Live spot via gold-api.com. `
     +`<b>Baseline built:</b> ${META.built_ny||'—'} · refreshed twice daily. `
-    +`<span id="livestamp">Live spot updates the moment you open this page.</span>`+staleNote;
+    +`<span id="livestamp">Live spot refreshes automatically while this page is open.</span>`+staleNote;
 }
 function renderSelector(){
   // update in place — rebuilding the buttons every live tick would destroy keyboard focus + in-flight clicks
@@ -987,6 +1021,7 @@ async function refreshLive(){
       liveSpot[key]=val; any=true;
     }
     if(any){ liveAt=Date.now(); liveFails=0; setLive(true); renderSelector(); renderHeadline(); render();
+      if(typeof checkAlerts==='function') checkAlerts();
       const ls=document.getElementById('livestamp');
       if(ls) ls.innerHTML='<span style="color:var(--up)">●</span> <b>Live spot as of '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'</b>';
     } else { liveFails++; if(liveFails>=2||!liveAt) setLive(false); }   // 2 strikes before downgrading the pill
@@ -1053,6 +1088,34 @@ function updateA11y(){
 const alForm=document.getElementById('alerts-form');
 const alEl=id=>document.getElementById(id);
 function alCurrent(){ const s=series(alEl('al-metal').value); return s[s.length-1][1]; }
+// Alerts that genuinely work with zero backend: saved on this device, checked against
+// the live feed every minute while the page is open, browser notification on hit.
+function alLoad(){ try{ return JSON.parse(localStorage.getItem('gr-alerts')||'[]'); }catch(e){ return []; } }
+function alStore(list){ try{ localStorage.setItem('gr-alerts',JSON.stringify(list.slice(0,8))); }catch(e){} }
+function renderAlertChips(){
+  const host=alEl('al-chips'); if(!host) return;
+  const list=alLoad(); host.innerHTML='';
+  list.forEach((a,i)=>{ const m=METALS[a.metal]; if(!m) return;
+    const d=document.createElement('span'); d.className='al-chip'+(a.hit?' hit':'');
+    d.innerHTML=(a.hit?'✓ ':'')+m.label+' '+(a.dir==='above'?'≥':'≤')+' <b class="tnum">'+fmtMoney(a.target,m.decimals)+'</b>'+(a.hit?' — hit':'');
+    const x=document.createElement('button'); x.type='button'; x.setAttribute('aria-label','Remove this alert'); x.textContent='×';
+    x.addEventListener('click',()=>{ const l=alLoad(); l.splice(i,1); alStore(l); renderAlertChips(); });
+    d.appendChild(x); host.appendChild(d);
+  });
+}
+function checkAlerts(){
+  const list=alLoad(); let changed=false;
+  for(const a of list){
+    if(a.hit) continue; const cur=liveSpot[a.metal]; if(cur==null) continue;
+    if((a.dir==='above'&&cur>=a.target)||(a.dir==='below'&&cur<=a.target)){
+      a.hit=true; a.hitAt=Date.now(); changed=true;
+      try{ if(window.Notification&&Notification.permission==='granted')
+        new Notification('GoldRock spot price alert',{body:METALS[a.metal].label+' just reached '+fmtMoney(a.target,METALS[a.metal].decimals)+'. Call (888) 859-0978 to act on it.'});
+      }catch(e){}
+    }
+  }
+  if(changed){ alStore(list); renderAlertChips(); }
+}
 function alResolve(){          // -> {cur, target, pct, dir, unit, valid, empty}
   const cur=alCurrent(), dir=alEl('al-dir').value, unit=alEl('al-unit').value, v=parseFloat(alEl('al-value').value);
   if(!v || v<=0) return {cur, empty:true};
@@ -1073,7 +1136,7 @@ function updateAlertFeedback(){
     else { fb.innerHTML=`${METALS[metal].label} spot is already ${r.dir==='above'?'above':'below'} <b>${fmtMoney(r.target,dec)}</b> (now ${fmtMoney(r.cur,dec)}). Try a ${r.dir==='above'?'higher':'lower'} spot price, or switch direction.`; }
     return; }
   const move=Math.abs(r.target-r.cur);
-  fb.innerHTML=`${METALS[metal].label} spot is <b>${fmtMoney(r.cur,dec)}</b> today — we’ll notify you when it ${r.dir==='above'?'rises':'falls'} <b>${r.pct.toFixed(1)}%</b> (${fmtMoney(move,dec)}) to <b>${fmtMoney(r.target,dec)}</b>.`;
+  fb.innerHTML=`${METALS[metal].label} spot is <b>${fmtMoney(r.cur,dec)}</b> today — we’ll flag it the moment it ${r.dir==='above'?'rises':'falls'} <b>${r.pct.toFixed(1)}%</b> (${fmtMoney(move,dec)}) to <b>${fmtMoney(r.target,dec)}</b>.`;
 }
 function syncAlertMetal(){ const am=alEl('al-metal'); if(am && am.value!==state.metal){ am.value=state.metal; fillAlertPlaceholder(); updateAlertFeedback(); } }
 if(alForm){
@@ -1085,30 +1148,34 @@ if(alForm){
     v.value = alEl('al-unit').value==='pct' ? '5' : alSuggest(); alAuto=+v.value;
     fillAlertPlaceholder(); updateAlertFeedback(); });
   alEl('al-value').addEventListener('input',updateAlertFeedback);
-  fillAlertPlaceholder(); updateAlertFeedback();
+  fillAlertPlaceholder(); updateAlertFeedback(); renderAlertChips();
   alForm.addEventListener('submit',async e=>{
     e.preventDefault();
     const metal=alEl('al-metal').value, email=alEl('al-email').value.trim(), r=alResolve(), dec=METALS[metal].decimals;
+    const phone=alEl('al-phone')?alEl('al-phone').value.trim():'';
     const msg=alEl('alerts-msg');
     if(r.empty||!email){ msg.className='alerts-msg err'; msg.textContent='Enter an amount and your email.'; return; }
     if(!r.valid){ msg.className='alerts-msg err'; msg.textContent='That target isn’t reachable from today’s spot — adjust it and try again.'; return; }
     const nice='when '+METALS[metal].label+' '+(r.dir==='above'?'rises':'falls')+' to '+fmtMoney(r.target,dec)+' ('+(r.dir==='above'?'+':'−')+r.pct.toFixed(1)+'%)';
-    const payload={metal,direction:r.dir,unit:r.unit,value:parseFloat(alEl('al-value').value),target:+r.target.toFixed(2),pct:+r.pct.toFixed(2),email,source:'goldrock-price-chart',ts:new Date().toISOString()};
+    const payload={metal,direction:r.dir,unit:r.unit,value:parseFloat(alEl('al-value').value),target:+r.target.toFixed(2),pct:+r.pct.toFixed(2),email,phone,source:'goldrock-price-chart',ts:new Date().toISOString()};
     try{
       if(CONFIG.alertsEndpoint){
         const rr=await fetch(CONFIG.alertsEndpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
         if(!rr.ok) throw 0;
         msg.className='alerts-msg ok'; msg.textContent='You’re set — we’ll email '+email+' '+nice+'.'; alForm.reset(); fillAlertPlaceholder(); updateAlertFeedback();
-      } else if(CONFIG.contactEmail){
-        const mail='mailto:'+CONFIG.contactEmail+'?subject='+encodeURIComponent('Price alert: '+METALS[metal].label)
-          +'&body='+encodeURIComponent('Please alert me '+nice+'.\nMy email: '+email);
-        window.location.href=mail;
-        // a mail app may or may not open — never show a success state we can't verify
-        msg.className='alerts-msg'; msg.innerHTML='Almost done — press <b>Send</b> in the email draft that just opened. '
-          +'Nothing opened? Email <a href="'+mail+'" style="color:var(--gold-bright)">'+CONFIG.contactEmail+'</a> '
-          +'or call <a href="tel:+18888590978" style="color:var(--gold-bright)">(888)&nbsp;859-0978</a> and we’ll set it up.';
       } else {
-        msg.className='alerts-msg ok'; msg.textContent='Thanks — call (888) 859-0978 to activate your alert and a specialist will confirm it.';
+        // no backend yet — the alert still WORKS: saved locally, watched by the live
+        // feed while the page is open. mailto is demoted to an optional copy.
+        const list=alLoad(); list.push({metal,dir:r.dir,target:+r.target.toFixed(2),email,phone,ts:Date.now()});
+        alStore(list); renderAlertChips();
+        try{ if(window.Notification&&Notification.permission==='default') Notification.requestPermission(); }catch(nerr){}
+        const mail=CONFIG.contactEmail?('mailto:'+CONFIG.contactEmail+'?subject='+encodeURIComponent('Price alert: '+METALS[metal].label)
+          +'&body='+encodeURIComponent('Please alert me '+nice+'.\nMy email: '+email+(phone?'\nMy phone: '+phone:''))):'';
+        msg.className='alerts-msg ok';
+        msg.innerHTML='Alert saved — this page watches the spot price for you while it’s open. '
+          +'Want it watched around the clock? Call <a href="tel:+18888590978" style="color:var(--gold-bright)">(888)&nbsp;859-0978</a>'
+          +(mail?' or <a href="'+mail+'" style="color:var(--gold-bright)">email us a copy</a>.':'.');
+        alForm.reset(); alEl('al-value').value='5'; fillAlertPlaceholder(); updateAlertFeedback();
       }
     }catch(err){ msg.className='alerts-msg err'; msg.textContent='Something went wrong — please call (888) 859-0978.'; }
   });
@@ -1155,11 +1222,14 @@ document.addEventListener('visibilitychange',()=>{ if(!document.hidden) refreshL
   try{ new ResizeObserver(report).observe(document.body); }catch(e){}
   window.addEventListener('load', report);
   setTimeout(report,300); setTimeout(report,1200);
+  // a fixed call button can't float inside the embed — ask the PARENT to render one
+  const FAB={goldrock:'fab', tel:'+18888590978', label:'(888) 859-0978'};
   // the parent's listener may attach after us — repeat the handshake until it answers (max ~10s)
   let tries=0; const hs=setInterval(function(){
     if(gotVP||tries++>20){ clearInterval(hs); return; }
-    parent.postMessage({goldrock:'ready'}, '*'); },500);
+    parent.postMessage({goldrock:'ready'}, '*'); parent.postMessage(FAB,'*'); },500);
   parent.postMessage({goldrock:'ready'}, '*');           // ask the parent for its viewport height
+  parent.postMessage(FAB,'*');
 })();
 </script>
 </body>

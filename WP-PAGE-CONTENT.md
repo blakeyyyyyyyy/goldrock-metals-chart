@@ -82,3 +82,24 @@ will help you with physical delivery or a Precious-Metals IRA.
 
 Optional add-on: I can also give you FAQ **schema markup** (JSON-LD) to paste in,
 which can earn the expandable FAQ rich-result in Google. Just ask.
+
+---
+
+## FAQ schema (JSON-LD) — paste into the page for the expandable Google rich result
+
+Add a Code element (or your SEO plugin's "custom schema" box) containing:
+
+```html
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+ {"@type":"Question","name":"What is the current spot price of gold?",
+  "acceptedAnswer":{"@type":"Answer","text":"The live gold spot price is shown at the top of the chart above and refreshes automatically while the page is open. Silver and platinum are one tap away."}},
+ {"@type":"Question","name":"How often do the prices update?",
+  "acceptedAnswer":{"@type":"Answer","text":"The live spot price refreshes about every minute while the page is open, and the historical chart is refreshed daily."}},
+ {"@type":"Question","name":"Can I hold gold, silver, or platinum in an IRA?",
+  "acceptedAnswer":{"@type":"Answer","text":"Yes. A Precious-Metals IRA lets you hold IRS-approved physical gold, silver, and platinum inside a tax-advantaged retirement account. A GoldRock specialist can walk you through eligibility and setup."}},
+ {"@type":"Question","name":"How do I get started with GoldRock?",
+  "acceptedAnswer":{"@type":"Answer","text":"Call (888) 859-0978 or email contact@goldrockmetalexchange.com, and a specialist will help you with physical delivery or a Precious-Metals IRA."}}
+]}
+</script>
+```

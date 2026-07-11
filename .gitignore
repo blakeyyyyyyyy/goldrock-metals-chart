@@ -5,3 +5,6 @@
 # large source-image options (only build/hero.jpg is used/embedded)
 build/hero_a.png
 build/hero_b.png
+
+# derived last-good data snapshot (regenerated every build; cached in CI, not committed)
+series-lastgood.json

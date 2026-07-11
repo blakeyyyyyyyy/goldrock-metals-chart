@@ -14,6 +14,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: write   # lets the keepalive step reset GitHub's 60-day cron-disable timer
 
 concurrency:
   group: pages
@@ -27,13 +28,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      # recent.json records each run's live prices so later runs can fill days the
-      # free feeds lag on. Runners are throwaway, so persist it via the cache: every
-      # run saves under a fresh key and restores the newest previous one.
+      # recent.json records each run's live prices so later runs can fill days the free
+      # feeds lag on; series-lastgood.json lets a run publish even if a source dies.
+      # Runners are throwaway, so persist both via the cache: every run saves under a
+      # fresh key and restores the newest previous one. NOTE: editing this `path` list
+      # changes the cache version and silently orphans all previous caches — expect one
+      # cold run after any change here.
       - name: Restore recorded price snapshots
         uses: actions/cache@v4
         with:
-          path: recent.json
+          path: |
+            recent.json
+            series-lastgood.json
           key: recent-snapshots-${{ github.run_id }}
           restore-keys: |
             recent-snapshots-
@@ -43,6 +49,15 @@ jobs:
         run: |
           mkdir -p public
           python3 build/build.py
+          # also publish the v2 lab build alongside (domain-locked, previewable via embed)
+          GOLDROCK_TEMPLATE=template-v2.html GOLDROCK_INDEX=index-v2.html python3 build/build.py
+      # GitHub disables cron schedules in repos with 60 days of no activity; re-enabling
+      # the workflow via the API resets that timer, keeping the refresh truly hands-off.
+      - name: Keep the schedule alive
+        if: github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT repos/${{ github.repository }}/actions/workflows/deploy.yml/enable || true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: public

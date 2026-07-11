@@ -242,8 +242,10 @@ NBU_CC = {'gold': 'XAU', 'silver': 'XAG', 'platinum': 'XPT'}
 
 
 def nbu_rate(ymd, cc):
-    """One NBU investment-metal / currency rate (UAH per oz, or UAH per unit)."""
-    j = fetch_json('https://bank.gov.ua/NBU_Exchange/exchange_site?json&date=%s&valcode=%s' % (ymd, cc))
+    """One NBU investment-metal / currency rate (UAH per oz, or UAH per unit).
+    Short timeout, single try — this is a best-effort gap filler, never worth stalling a build."""
+    j = json.loads(fetch('https://bank.gov.ua/NBU_Exchange/exchange_site?json&date=%s&valcode=%s' % (ymd, cc),
+                         timeout=12, tries=1))
     return float(j[0]['rate']) if j else None
 
 
@@ -268,8 +270,11 @@ def fill_from_nbu(daily, metal, today_key):
     last = datetime.date.fromisoformat(daily[-1][0])
     today = datetime.date.fromisoformat(today_key)
     added = 0
-    m = last + datetime.timedelta(days=1)
-    while m < today:                                   # up to yesterday; today comes from live spot
+    # cap the window: with a months-stale tail (e.g. a last-good fallback) an unbounded
+    # walk against a slow NBU could stall a scheduled run for hours
+    m = max(last + datetime.timedelta(days=1), today - datetime.timedelta(days=21))
+    fails = 0
+    while m < today and fails < 5:                     # up to yesterday; today comes from live spot
         if m.weekday() < 5 and m.isoformat() not in have:
             nd = _next_trading_day(m)                  # NBU date whose value reflects market day m
             if nd <= today:
@@ -279,11 +284,38 @@ def fill_from_nbu(daily, metal, today_key):
                     if metal_uah and usd_uah:
                         daily.append((m.isoformat(), round(metal_uah / usd_uah, 2)))
                         added += 1
+                        fails = 0
+                    else:
+                        fails += 1
                 except Exception:
-                    pass
+                    fails += 1
         m += datetime.timedelta(days=1)
     daily.sort(key=lambda x: x[0])
     return daily, added
+
+
+LASTGOOD_PATH = os.path.join(PROJECT_DIR, 'series-lastgood.json')
+
+
+def save_lastgood(gold, silver, platinum):
+    """Persist the fully-assembled daily series so a future run whose SOURCE dies can
+    still publish (frozen history + live tip) instead of failing until the source heals.
+    Written atomically — a truncate-then-crash must never destroy the only fallback."""
+    try:
+        tmp = LASTGOOD_PATH + '.tmp'
+        with open(tmp, 'w') as f:
+            json.dump({'gold': gold, 'silver': silver, 'platinum': platinum}, f)
+        os.replace(tmp, LASTGOOD_PATH)
+    except OSError as e:
+        log('WARN could not save series-lastgood.json: %s' % e)
+
+
+def load_lastgood(metal):
+    try:
+        with open(LASTGOOD_PATH) as f:
+            return [(d, p) for d, p in json.load(f)[metal]]
+    except Exception:
+        return []
 
 
 def load_recent():
@@ -298,8 +330,10 @@ def save_recent(rec):
     keys = sorted(rec)[-70:]                      # keep ~10 weeks of snapshots
     rec = {k: rec[k] for k in keys}
     try:
-        with open(RECENT_PATH, 'w') as f:
+        tmp = RECENT_PATH + '.tmp'
+        with open(tmp, 'w') as f:
             json.dump(rec, f)
+        os.replace(tmp, RECENT_PATH)
     except OSError:
         pass
 
@@ -366,16 +400,26 @@ def run():
             log('WARN live %s failed: %s' % (key, e))
     log('live spot: %s' % live)
 
-    # --- real daily history ---
-    gold_daily = fetch_goldprice_daily('XAU')
-    silver_daily = fetch_goldprice_daily('XAG')
-    platinum_daily = fetch_macrotrends(2540)
-    # refuse to publish from an empty or gutted feed (format change, error page, truncation) —
-    # the atomic write keeps the last good chart live, and this names the culprit in the log
-    for name, s in (('goldprice gold', gold_daily), ('goldprice silver', silver_daily),
-                    ('macrotrends platinum', platinum_daily)):
-        if len(s) < 5000:
-            raise RuntimeError('%s returned only %d points — refusing to publish' % (name, len(s)))
+    # --- real daily history, with a last-good fallback per metal: a dead or gutted feed
+    # (format change, error page, truncation) degrades to "frozen history + live tip"
+    # instead of killing every future build until the source heals ---
+    def hist(name, metal, fn, *args):
+        try:
+            s = fn(*args)
+            if len(s) >= 5000:
+                return s
+            log('WARN %s returned only %d points — falling back to last good' % (name, len(s)))
+        except Exception as e:
+            log('WARN %s history fetch failed (%s) — falling back to last good' % (name, e))
+        lg = load_lastgood(metal)
+        if len(lg) >= 5000:
+            log('using last-good %s series (%d points, through %s)' % (metal, len(lg), lg[-1][0]))
+            return lg
+        raise RuntimeError('%s failed and no last-good series is available — refusing to publish' % name)
+
+    gold_daily = hist('goldprice gold', 'gold', fetch_goldprice_daily, 'XAU')
+    silver_daily = hist('goldprice silver', 'silver', fetch_goldprice_daily, 'XAG')
+    platinum_daily = hist('macrotrends platinum', 'platinum', fetch_macrotrends, 2540)
     log('daily raw: gold=%d(%s..%s) silver=%d(%s..%s) platinum=%d(%s..%s)' % (
         len(gold_daily), gold_daily[0][0], gold_daily[-1][0],
         len(silver_daily), silver_daily[0][0], silver_daily[-1][0],
@@ -424,6 +468,9 @@ def run():
     gold_daily = merge_live_tail(gold_daily, live['gold'], today_key)
     silver_daily = merge_live_tail(silver_daily, live['silver'], today_key)
     platinum_daily = merge_live_tail(platinum_daily, live['platinum'], today_key)
+
+    # --- remember this fully-assembled state for future fallback runs ---
+    save_lastgood(gold_daily, silver_daily, platinum_daily)
 
     # --- thin old history, encode compactly ---
     series = {

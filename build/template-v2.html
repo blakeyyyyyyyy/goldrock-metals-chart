@@ -162,6 +162,25 @@
     -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:all .16s}
   .perfchip b{margin-left:7px;font-weight:700}
   .perfchip:hover{border-color:rgba(227,186,78,.4);color:var(--ivory)}
+  /* My Metals — private holdings valuator */
+  .holdings{text-align:center;padding:8px 0 4px}
+  .hold-toggle{appearance:none;border:0;background:transparent;color:var(--muted);cursor:pointer;font-family:var(--sans);
+    font-size:11.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:8px 12px;transition:color var(--dur) var(--ease)}
+  .hold-toggle:hover{color:var(--gold-bright)}
+  .hold-card{max-width:640px;margin:8px auto 0;padding:18px;border:1px solid var(--line);border-radius:12px;
+    background:linear-gradient(180deg,rgba(9,9,11,.72),rgba(9,9,11,.9))}
+  .hold-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .hold-row label{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+  .hold-row input{width:92px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:8px;
+    color:var(--ivory);font-family:var(--sans);font-size:14px;padding:8px 10px}
+  .hold-row input:focus{outline:none;border-color:rgba(227,186,78,.55)}
+  .hold-row span{color:var(--muted2);font-size:11px}
+  .hold-out{margin-top:14px;font-family:var(--serif);font-size:24px;color:#fdfaf3;min-height:28px}
+  .hold-out small{font-family:var(--sans);font-size:12.5px;margin-left:8px;font-weight:600}
+  .hold-cta{margin-top:8px;font-size:13px;color:var(--muted);min-height:16px}
+  .hold-cta a{color:var(--gold-bright);text-decoration:none;border-bottom:1px solid rgba(227,186,78,.35)}
+  .hold-cta a:hover{color:#fff}
+  .hold-note{margin-top:9px;font-size:11px;color:var(--muted2)}
 
   /* stat bar sits at the base of the stage, over the stone */
   .statbar{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:12px;padding:18px 20px 22px;margin-top:8px;
@@ -286,6 +305,7 @@
           <div class="metaltabs" id="metaltabs"></div>
           <div class="ctl-row">
             <div class="tframes" id="tframes">
+              <button data-tf="1D" title="Today — live quotes recorded while you watch">1D</button>
               <button data-tf="1W">1W</button>
               <button data-tf="1M">1M</button>
               <button data-tf="6M">6M</button>
@@ -325,6 +345,19 @@
 
       <div class="statbar" id="stats"></div>
       <div class="perfrow" id="perf" role="group" aria-label="Performance since — click to set the timeframe"></div>
+      <div class="holdings">
+        <button class="hold-toggle" id="hold-toggle" type="button" aria-expanded="false" aria-controls="hold-card">◈ Value my metals</button>
+        <div class="hold-card" id="hold-card" hidden>
+          <div class="hold-row">
+            <label>Gold <input id="h-gold" type="number" min="0" step="any" inputmode="decimal" placeholder="0" aria-label="Gold ounces"><span>oz</span></label>
+            <label>Silver <input id="h-silver" type="number" min="0" step="any" inputmode="decimal" placeholder="0" aria-label="Silver ounces"><span>oz</span></label>
+            <label>Platinum <input id="h-platinum" type="number" min="0" step="any" inputmode="decimal" placeholder="0" aria-label="Platinum ounces"><span>oz</span></label>
+          </div>
+          <div class="hold-out tnum" id="hold-out" aria-live="polite"></div>
+          <div class="hold-cta" id="hold-cta"></div>
+          <div class="hold-note">Saved on this device only — never sent anywhere.</div>
+        </div>
+      </div>
       <p class="sr-only" id="a11y-summary"></p>
       <p class="sr-only" id="a11y-live" role="status" aria-live="polite"></p>
     </div>
@@ -443,6 +476,44 @@ function series(metal){
   if (lv != null && s.length) s[s.length-1] = [s[s.length-1][0], lv];
   return s;
 }
+// --- 1D intraday: live quotes recorded into a rolling on-device buffer while the page
+// is open, anchored to the last real close so the line is honest from the first tick ---
+let idbCache=null;                       // parsed once, reused — render must never re-parse 100KB per frame
+function idbLoad(){
+  if(idbCache) return idbCache;
+  try{ const v=JSON.parse(localStorage.getItem('gr-1d')||'{}');
+    idbCache=(v && typeof v==='object' && !Array.isArray(v)) ? v : {};
+  }catch(e){ idbCache={}; }
+  return idbCache;
+}
+function idbPush(){
+  try{
+    const b=idbLoad(), now=Date.now(), cut=now-48*3600000;
+    for(const k of ['gold','silver','platinum']){ const v=liveSpot[k]; if(v==null) continue;
+      const arr=(Array.isArray(b[k])?b[k]:[]).filter(p=>p[0]>=cut);
+      if(!arr.length || now-arr[arr.length-1][0]>45000) arr.push([now,v]);
+      b[k]=arr.slice(-1500);
+    }
+    localStorage.setItem('gr-1d',JSON.stringify(b)); idbCache=b;
+  }catch(e){}
+}
+function anchorClose(metal){          // last REAL close strictly before today (UTC) — raw data, not the live-overwritten tip
+  const raw=DATA[metal], todayOff=Math.floor(Date.now()/DAY);
+  let ai=raw.length-1; while(ai>0 && raw[ai][0]>=todayOff) ai--;
+  return raw[ai];
+}
+function intradaySeries(metal){
+  const a=anchorClose(metal);
+  // anchor at the END of the close's day, so the buffer's own ticks from that day are
+  // dropped by the p[0]>anchor filter — otherwise the close would plot BEFORE the ticks
+  // that produced it and draw a price move that never happened
+  const out=[[(a[0]+1)*DAY, a[1]]];
+  for(const p of (idbLoad()[metal]||[])) if(p[0]>out[out.length-1][0]) out.push(p);
+  const lv=liveSpot[metal];
+  if(lv!=null && Date.now()>out[out.length-1][0]) out.push([Date.now(),lv]);
+  return out.length>=2 ? out : series(metal).slice(-2);
+}
+function activeSeries(metal){ return state.tf==='1D' ? intradaySeries(metal) : series(metal); }
 function fmtMoney(v, dec){ if(v==null||isNaN(v)) return '—';
   return '$'+v.toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec}); }
 function fmtMoneyRich(v, dec){ if(v==null||isNaN(v)) return '—';   // small $/cents, editorial style
@@ -467,18 +538,18 @@ const box=document.getElementById('chartwrap'), tip=document.getElementById('tip
 const PAD={t:24,r:66,b:30,l:10};
 let view=null;
 
-function fullBounds(metal){ const s=series(metal); return {lo:s[0][0], hi:s[s.length-1][0]}; }
+function fullBounds(metal){ const s=activeSeries(metal); return {lo:s[0][0], hi:s[s.length-1][0]}; }
 function currentRange(metal){          // the visible [from,to] — from a timeframe preset, or a custom zoom/pan
   const {lo,hi}=fullBounds(metal);
   if(state.view){ const from=Math.max(lo,state.view.from), to=Math.min(hi,state.view.to);
     if(from<to) return {from,to}; }    // inverted view (e.g. metal switch outside its history) → fall through to the preset
-  if(state.tf==='MAX') return {from:lo, to:hi};
+  if(state.tf==='1D'||state.tf==='MAX') return {from:lo, to:hi};   // 1D = the whole intraday buffer
   if(state.tf==='YTD'){ const d=new Date(hi);   // floor to 3 days so Jan 1 never degenerates to a 1ms window
     return {from:Math.max(lo,Math.min(Date.UTC(d.getUTCFullYear(),0,1), hi-3*DAY)), to:hi}; }
   return {from:Math.max(lo, hi-TF_DAYS[state.tf]*DAY), to:hi};
 }
 function windowPts(metal){
-  const s=series(metal); const {from,to}=currentRange(metal);
+  const s=activeSeries(metal); const {from,to}=currentRange(metal);
   let i0=0; while(i0<s.length-1 && s[i0][0]<from) i0++; if(i0>0) i0--;   // one anchor each side for continuity
   let i1=s.length-1; while(i1>0 && s[i1][0]>to) i1--; if(i1<s.length-1) i1++;
   if(i1<=i0) i1=Math.min(s.length-1,i0+1);
@@ -490,10 +561,16 @@ function niceTicks(min,max,n){ const span=(max-min)||1, raw=span/n, mag=Math.pow
 function fmtAxis(v){ if(v>=100) return '$'+Math.round(v).toLocaleString('en-US');
   if(v>=10) return '$'+v.toFixed(0); if(v>=1) return '$'+v.toFixed(1); return '$'+v.toFixed(2); }
 function fmtDateTick(ms,span){ const d=new Date(ms);
+  if(span<=2*DAY) return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
   if(span>1300*DAY) return d.getUTCFullYear();
   if(span>130*DAY) return d.toLocaleDateString('en-US',{month:'short',year:'2-digit',timeZone:'UTC'});
   return d.toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'}); }
-function fmtDateFull(ms){ return new Date(ms).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'}); }
+function fmtDateFull(ms){ const d=new Date(ms);
+  // format by the TIMESTAMP's granularity, not global state: daily points sit exactly on
+  // UTC midnights; intraday ticks never do. Keeps perf-chip titles and the compare caption
+  // date-correct even while 1D is active.
+  if(ms%DAY!==0) return d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+', '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'}); }
 
 // faint ambient seams — the OTHER two metals' full history, low in the frame (veins in the stone)
 function drawGhost(metal, x0, x1, H, fromMs, spanMs){
@@ -743,14 +820,18 @@ function startAnim(){ cancelAnimationFrame(animRAF);
 function clampView(from,to){ const {lo,hi}=fullBounds(state.metal); const span=to-from;
   if(from<lo){ from=lo; to=lo+span; } if(to>hi){ to=hi; from=hi-span; }
   return {from:Math.max(lo,from), to:Math.min(hi,to)}; }
+function minSpan(){ return state.tf==='1D' ? 5*60000 : 3*DAY; }   // intraday zooms to 5 minutes, daily to 3 days
 function setView(from,to){ const {lo,hi}=fullBounds(state.metal);
-  let span=Math.max(3*DAY, Math.min(hi-lo, to-from)); to=from+span;
-  state.view=clampView(from,to); syncTfHighlight(); renderHeadline(); render(); }
+  let span=Math.max(minSpan(), Math.min(hi-lo, to-from)); to=from+span;
+  const v=clampView(from,to);
+  if(!state.view){ const pr=currentRange(state.metal);   // a no-op gesture must not strip the preset highlight
+    if(Math.abs(v.from-pr.from)<1 && Math.abs(v.to-pr.to)<1) return; }
+  state.view=v; syncTfHighlight(); renderHeadline(); render(); }
 function zoomTarget(centerT, factor){
   const cr=view?{from:view.fromMs,to:view.toMs}:currentRange(state.metal);
   const span=cr.to-cr.from, rel=(centerT-cr.from)/(span||1);
   const {lo,hi}=fullBounds(state.metal);
-  const nspan=Math.max(3*DAY, Math.min(hi-lo, span*factor));
+  const nspan=Math.max(minSpan(), Math.min(hi-lo, span*factor));
   return {from:centerT-rel*nspan, to:centerT-rel*nspan+nspan}; }
 function zoomAround(centerT, factor){ const t=zoomTarget(centerT,factor); setView(t.from,t.to); }
 let viewRAF=null, viewTO=null;
@@ -816,13 +897,13 @@ function setActive(on){ if(chartActive===on) return; chartActive=on; box.classLi
 let pinchD=0, pinchC=0;
 function touchDist(e){ const a=e.touches[0],b=e.touches[1]; return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY); }
 cv.addEventListener('mousemove',onMove); cv.addEventListener('mouseleave',onLeave);
-cv.addEventListener('mousedown',e=>{ setActive(true); dragging=true; dragMoved=false; dragX0=e.clientX;
+cv.addEventListener('mousedown',e=>{ cancelViewGlide(); setActive(true); dragging=true; dragMoved=false; dragX0=e.clientX;
   const cr=currentRange(state.metal); dragFrom=cr.from; dragTo=cr.to; tip.style.opacity=0; cv.style.cursor='grabbing'; });
 window.addEventListener('mouseup',()=>{ if(dragging){ dragging=false; cv.style.cursor='grab'; } });
 document.addEventListener('mousedown',e=>{ if(!box.contains(e.target)) setActive(false); });   // click away releases the wheel
 cv.addEventListener('dblclick',()=>{ cancelViewGlide(); state.view=null; syncTfHighlight(); renderHeadline(); startAnim(); });
 cv.addEventListener('wheel',e=>{ if(!chartActive||!view) return;   // not engaged → let the page scroll normally
-  e.preventDefault();
+  e.preventDefault(); cancelViewGlide();
   const r=cv.getBoundingClientRect(); const cx=Math.max(view.x0,Math.min(view.x1,e.clientX-r.left));
   const centerT=view.fromMs+(cx-view.x0)/(view.x1-view.x0)*view.spanMs;
   let dy=e.deltaY||0; if(e.deltaMode===1) dy*=16; else if(e.deltaMode===2) dy*=400;
@@ -832,7 +913,7 @@ cv.style.cursor='grab';
 if(window.matchMedia && matchMedia('(pointer:coarse)').matches){   // touch devices tap, they don't click
   const cl=document.getElementById('chartlock'); if(cl) cl.innerHTML='<span>◆</span> Tap the chart to zoom &amp; pan'; }
 let t1X=0,t1Y=0,t1From=0,t1To=0,t1Mode=null;           // single-finger touch state
-cv.addEventListener('touchstart',e=>{ if(e.touches.length===2){ setActive(true); t1Mode='pinch'; pinchD=touchDist(e); const r=cv.getBoundingClientRect();
+cv.addEventListener('touchstart',e=>{ if(e.touches.length===2){ cancelViewGlide(); setActive(true); t1Mode='pinch'; pinchD=touchDist(e); const r=cv.getBoundingClientRect();
     const midX=(e.touches[0].clientX+e.touches[1].clientX)/2-r.left;
     pinchC=view? view.fromMs+(Math.max(view.x0,Math.min(view.x1,midX))-view.x0)/(view.x1-view.x0)*view.spanMs : 0; }
   else { t1X=e.touches[0].clientX; t1Y=e.touches[0].clientY; t1Mode=null;
@@ -844,7 +925,8 @@ cv.addEventListener('touchmove',e=>{ if(e.touches.length===2 && view){ e.prevent
     // engaged + zoomed: a mostly-horizontal drag pans the window (vertical stays a page scroll)
     if(chartActive && state.view && view){
       const dx=e.touches[0].clientX-t1X, dy=e.touches[0].clientY-t1Y;
-      if(!t1Mode && (Math.abs(dx)>8||Math.abs(dy)>8)) t1Mode=Math.abs(dx)>Math.abs(dy)?'pan':'scroll';
+      if(!t1Mode && (Math.abs(dx)>8||Math.abs(dy)>8)){ t1Mode=Math.abs(dx)>Math.abs(dy)?'pan':'scroll';
+        if(t1Mode==='pan') cancelViewGlide(); }
       if(t1Mode==='pan'){ e.preventDefault(); tip.style.opacity=0;
         const span=t1To-t1From, dt=-dx/((view.x1-view.x0)||1)*span; setView(t1From+dt, t1To+dt); return; }
     }
@@ -856,7 +938,8 @@ cv.addEventListener('touchend',e=>{ if(e.touches.length===0){
 
 function computeStats(metal){
   const s=series(metal); const {from,to}=currentRange(metal);
-  const win=s.filter(p=>p[0]>=from-1 && p[0]<=to+1); const use=win.length>1?win:s.slice(-2);
+  const sw=activeSeries(metal);                       // window stats follow the 1D buffer when active
+  const win=sw.filter(p=>p[0]>=from-1 && p[0]<=to+1); const use=win.length>1?win:s.slice(-2);
   const cur=s[s.length-1][1], open=use[0][1], winLast=use[use.length-1][1];
   let hi=-Infinity,lo=Infinity; for(const p of use){ if(p[1]>hi)hi=p[1]; if(p[1]<lo)lo=p[1]; }
   const chg=winLast-open, pct=open?chg/open*100:0;
@@ -869,13 +952,14 @@ function renderHeadline(){
   document.getElementById('hl-price').innerHTML=fmtMoneyRich(st.cur,dec);
   // permanent "today" readout, anchored to the last close before the newest session —
   // the default 1Y view should still answer "what has it done today?"
-  const s0=series(state.metal), lastP=s0[s0.length-1];
-  const dayMid=Math.floor(lastP[0]/DAY)*DAY;
-  let ai=s0.length-2; while(ai>0 && s0[ai][0]>=dayMid) ai--;
-  const anch=s0[ai], tEl=document.getElementById('hl-today');
-  if(tEl){ if(anch && anch[1] && anch[0]<lastP[0]){
-    const dd2=lastP[1]-anch[1], pc3=dd2/anch[1]*100;
-    const isToday=new Date().toISOString().slice(0,10)===new Date(lastP[0]).toISOString().slice(0,10);
+  // anchorClose = last REAL close strictly before today (raw data, immune to the
+  // live-overwritten tip) — the same anchor the holdings card uses, so they always agree
+  const anch=anchorClose(state.metal), tEl=document.getElementById('hl-today');
+  const rawLast=DATA[state.metal][DATA[state.metal].length-1];
+  const lastLive=liveSpot[state.metal]!=null?liveSpot[state.metal]:rawLast[1];
+  if(tEl){ if(anch && anch[1]){
+    const dd2=lastLive-anch[1], pc3=dd2/anch[1]*100;
+    const isToday=rawLast[0]===Math.floor(Date.now()/DAY);
     tEl.innerHTML='<span class="'+(dd2>=0?'up':'down')+'">'+(dd2>=0?'▲':'▼')+' '+Math.abs(pc3).toFixed(2)+'% '+(isToday?'today':'this session')+'</span>';
   } else tEl.textContent=''; }
   const up=st.chg>=0, d=document.getElementById('hl-delta');
@@ -948,10 +1032,13 @@ function renderSelector(){
       b.innerHTML=`<span class="sw"></span>${m.label}<b class="mp tnum"></b>`;
       b.addEventListener('click',()=>selectMetal(key)); host.appendChild(b); }
     b.className='mtab'+(state.metal===key?' on':'');
+    b.setAttribute('aria-pressed',String(state.metal===key));
     b.querySelector('.mp').textContent=fmtMoney(cur,key==='silver'?2:0);
   }
 }
-function syncTfHighlight(){ document.querySelectorAll('#tframes button').forEach(x=>x.classList.toggle('on', !state.view && x.dataset.tf===state.tf)); }
+function syncTfHighlight(){ document.querySelectorAll('#tframes button').forEach(x=>{
+  const on=!state.view && x.dataset.tf===state.tf;
+  x.classList.toggle('on',on); x.setAttribute('aria-pressed',String(on)); }); }
 function selectMetal(m){ cancelViewGlide(); state.metal=m; applyAccent(m);
   if(state.view){ const {lo,hi}=fullBounds(m);          // re-fit a custom window to this metal's history so it can't invert
     const span=Math.min(hi-lo, state.view.to-state.view.from);
@@ -989,6 +1076,7 @@ function applyDateRange(){
   const f=Date.parse(document.getElementById('dr-from').value+'T00:00:00Z');
   const t=Date.parse(document.getElementById('dr-to').value+'T00:00:00Z');
   if(isNaN(f)||isNaN(t)) return;
+  if(state.tf==='1D') state.tf='MAX';   // historical dates make no sense inside the intraday buffer — exit 1D first
   animateViewTo(Math.min(f,t), Math.max(f,t)+DAY);
 }
 document.getElementById('dr-go').addEventListener('click',applyDateRange);
@@ -1020,8 +1108,9 @@ async function refreshLive(){
       if(key===state.metal && prev!=null && Math.abs(val-prev)>1e-9) pulsePrice(val>=prev);
       liveSpot[key]=val; any=true;
     }
-    if(any){ liveAt=Date.now(); liveFails=0; setLive(true); renderSelector(); renderHeadline(); render();
+    if(any){ liveAt=Date.now(); liveFails=0; idbPush(); setLive(true); renderSelector(); renderHeadline(); render();
       if(typeof checkAlerts==='function') checkAlerts();
+      if(typeof renderHoldings==='function') renderHoldings();
       const ls=document.getElementById('livestamp');
       if(ls) ls.innerHTML='<span style="color:var(--up)">●</span> <b>Live spot as of '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'</b>';
     } else { liveFails++; if(liveFails>=2||!liveAt) setLive(false); }   // 2 strikes before downgrading the pill
@@ -1084,25 +1173,64 @@ function updateA11y(){
     +`Range low ${fmtMoney(st.lo,m.decimals)}, high ${fmtMoney(st.hi,m.decimals)}. All-time high ${fmtMoney(st.ath,m.decimals)}.`;
 }
 
+// --- My Metals: what is MY position worth right now — device-only, ticks with live spot ---
+function holdLoad(){ try{ const v=JSON.parse(localStorage.getItem('gr-holdings')||'{}');
+  return (v && typeof v==='object' && !Array.isArray(v)) ? v : {}; }catch(e){ return {}; } }
+function holdSave(h){ try{ localStorage.setItem('gr-holdings',JSON.stringify(h)); }catch(e){} }
+function renderHoldings(){
+  const outEl=document.getElementById('hold-out'), cta=document.getElementById('hold-cta');
+  if(!outEl) return;
+  const h=holdLoad(); let tot=0, tot0=0;
+  for(const k of ['gold','silver','platinum']){ const oz=+h[k]||0; if(oz<=0) continue;
+    const cur=liveSpot[k]; if(cur==null) continue;
+    tot+=oz*cur; tot0+=oz*anchorClose(k)[1];
+  }
+  if(tot<=0){ outEl.textContent=''; if(cta) cta.innerHTML=''; return; }
+  const dd=tot-tot0, up=dd>=0;
+  outEl.innerHTML=fmtMoneyRich(tot,2)
+    +' <small class="'+(up?'up':'down')+'">'+(up?'▲':'▼')+' '+fmtMoney(Math.abs(dd),2)+' today</small>';
+  if(cta) cta.innerHTML='Adding to your position? <a href="tel:+18888590978">Speak with a specialist — (888)&nbsp;859-0978</a>';
+}
+(function(){
+  const t=document.getElementById('hold-toggle'), c=document.getElementById('hold-card'); if(!t||!c) return;
+  t.addEventListener('click',()=>{ const open=c.hidden; c.hidden=!open; t.setAttribute('aria-expanded',String(open));
+    if(open) renderHoldings(); });
+  const h=holdLoad();
+  for(const k of ['gold','silver','platinum']){ const el=document.getElementById('h-'+k); if(!el) continue;
+    if(+h[k]>0) el.value=h[k];
+    el.addEventListener('input',()=>{ const hh=holdLoad(); hh[k]=parseFloat(el.value)||0; holdSave(hh); renderHoldings(); });
+  }
+  if(['gold','silver','platinum'].some(k=>+h[k]>0)){ c.hidden=false; t.setAttribute('aria-expanded','true');
+    renderHoldings(); }   // liveSpot is pre-seeded from the baked build, so a value renders even before the first live tick
+})();
+
 // price-alert lead capture
 const alForm=document.getElementById('alerts-form');
 const alEl=id=>document.getElementById(id);
 function alCurrent(){ const s=series(alEl('al-metal').value); return s[s.length-1][1]; }
 // Alerts that genuinely work with zero backend: saved on this device, checked against
 // the live feed every minute while the page is open, browser notification on hit.
-function alLoad(){ try{ return JSON.parse(localStorage.getItem('gr-alerts')||'[]'); }catch(e){ return []; } }
-function alStore(list){ try{ localStorage.setItem('gr-alerts',JSON.stringify(list.slice(0,8))); }catch(e){} }
+function alLoad(){ try{ const v=JSON.parse(localStorage.getItem('gr-alerts')||'[]'); return Array.isArray(v)?v:[]; }catch(e){ return []; } }
+function alStore(list){ try{ const s=JSON.stringify(list.slice(-8));   // keep the NEWEST if ever over cap
+    localStorage.setItem('gr-alerts',s);
+    return localStorage.getItem('gr-alerts')===s;                      // verify — storage can be silently blocked
+  }catch(e){ return false; } }
 function renderAlertChips(){
   const host=alEl('al-chips'); if(!host) return;
   const list=alLoad(); host.innerHTML='';
-  list.forEach((a,i)=>{ const m=METALS[a.metal]; if(!m) return;
+  list.forEach(a=>{ const m=METALS[a.metal]; if(!m) return;
     const d=document.createElement('span'); d.className='al-chip'+(a.hit?' hit':'');
     d.innerHTML=(a.hit?'✓ ':'')+m.label+' '+(a.dir==='above'?'≥':'≤')+' <b class="tnum">'+fmtMoney(a.target,m.decimals)+'</b>'+(a.hit?' — hit':'');
     const x=document.createElement('button'); x.type='button'; x.setAttribute('aria-label','Remove this alert'); x.textContent='×';
-    x.addEventListener('click',()=>{ const l=alLoad(); l.splice(i,1); alStore(l); renderAlertChips(); });
+    // remove by identity, never by render-time index — another tab may have reordered the list
+    x.addEventListener('click',()=>{ alStore(alLoad().filter(a2=>a2.ts!==a.ts)); renderAlertChips(); });
     d.appendChild(x); host.appendChild(d);
   });
 }
+window.addEventListener('storage',e=>{ if(!e||!e.key) return;         // keep tabs in sync
+  if(e.key==='gr-alerts') renderAlertChips();
+  if(e.key==='gr-1d') idbCache=null;
+});
 function checkAlerts(){
   const list=alLoad(); let changed=false;
   for(const a of list){
@@ -1166,11 +1294,20 @@ if(alForm){
       } else {
         // no backend yet — the alert still WORKS: saved locally, watched by the live
         // feed while the page is open. mailto is demoted to an optional copy.
-        const list=alLoad(); list.push({metal,dir:r.dir,target:+r.target.toFixed(2),email,phone,ts:Date.now()});
-        alStore(list); renderAlertChips();
-        try{ if(window.Notification&&Notification.permission==='default') Notification.requestPermission(); }catch(nerr){}
         const mail=CONFIG.contactEmail?('mailto:'+CONFIG.contactEmail+'?subject='+encodeURIComponent('Price alert: '+METALS[metal].label)
           +'&body='+encodeURIComponent('Please alert me '+nice+'.\nMy email: '+email+(phone?'\nMy phone: '+phone:''))):'';
+        if(alLoad().length>=8){ msg.className='alerts-msg err';
+          msg.textContent='You have 8 alerts saved on this device — remove one below first.'; return; }
+        const list=alLoad(); list.push({metal,dir:r.dir,target:+r.target.toFixed(2),email,phone,ts:Date.now()});
+        if(!alStore(list)){   // storage blocked (private mode / third-party data blocked) — never claim success
+          msg.className='alerts-msg err';
+          msg.innerHTML='Your browser is blocking on-device storage, so this page can’t watch the price for you. '
+            +'Call <a href="tel:+18888590978" style="color:var(--gold-bright)">(888)&nbsp;859-0978</a>'
+            +(mail?' or <a href="'+mail+'" style="color:var(--gold-bright)">email us your alert</a>':'')+' and we’ll set it up.';
+          return; }
+        renderAlertChips();
+        // Notification permission can't be granted inside a cross-origin iframe — only ask standalone
+        try{ if(window.self===window.top && window.Notification && Notification.permission==='default') Notification.requestPermission(); }catch(nerr){}
         msg.className='alerts-msg ok';
         msg.innerHTML='Alert saved — this page watches the spot price for you while it’s open. '
           +'Want it watched around the clock? Call <a href="tel:+18888590978" style="color:var(--gold-bright)">(888)&nbsp;859-0978</a>'
@@ -1200,9 +1337,10 @@ document.addEventListener('visibilitychange',()=>{ if(!document.hidden) refreshL
 (function(){
   if(window.self===window.top) return;                 // only when embedded
   const stage=document.querySelector('.stage');
-  // A position:fixed button can't float inside a full-height seamless embed — it would render once,
-  // at the very bottom over the footer. When embedded, the page's inline CTAs carry the phone number.
-  const fab=document.querySelector('.callfab'); if(fab) fab.style.display='none';
+  // A position:fixed button can't float inside a full-height seamless embed — but we only
+  // hide ours AFTER the parent confirms (fab-ok) that it rendered a replacement. A plain
+  // iframe without the plugin keeps the in-chart button rather than losing the call CTA.
+  const fab=document.querySelector('.callfab');
   // Freeze the hero height in px IMMEDIATELY: if .stage kept min-height:100vh while the parent resizes
   // the iframe to our reported scrollHeight, each resize would grow 100vh → scrollHeight → iframe height
   // → 100vh again — an unbounded feedback loop. A frozen px height can't feed back.
@@ -1218,6 +1356,7 @@ document.addEventListener('visibilitychange',()=>{ if(!document.hidden) refreshL
     const d=e.data;
     if(d && d.goldrock==='viewport' && d.height>0){ gotVP=true;
       if(stage) stage.style.minHeight=Math.max(420,Math.min(4000,d.height))+'px'; report(); }
+    if(d && d.goldrock==='fab-ok' && fab) fab.style.display='none';   // parent now floats the call button
   });
   try{ new ResizeObserver(report).observe(document.body); }catch(e){}
   window.addEventListener('load', report);

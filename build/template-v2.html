@@ -77,6 +77,10 @@
     text-shadow:0 2px 22px rgba(0,0,0,.8)}
   .marketnote{margin-top:10px;font-size:13.5px;color:var(--muted);letter-spacing:.01em;text-shadow:0 1px 12px rgba(0,0,0,.8);min-height:0}
   .marketnote:empty{display:none}
+  .milestone{margin-top:12px;text-align:center;font-size:12.5px;letter-spacing:.06em;color:var(--gold-bright);
+    text-shadow:0 1px 10px rgba(0,0,0,.8)}
+  .milestone:empty{display:none}
+  .milestone span{color:var(--gold);margin-right:7px}
 
   /* control row */
   .controls{margin-top:clamp(20px,3.4vh,40px);display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap}
@@ -342,6 +346,7 @@
         </div>
       </div>
 
+      <div class="milestone" id="milestone" aria-live="polite"></div>
       <div class="chartwrap" id="chartwrap">
         <canvas id="chart" tabindex="0" role="application" aria-roledescription="interactive price chart" aria-label="Interactive price chart. Focus the chart and use the left and right arrow keys to read each day's value; plus and minus zoom; Escape resets." aria-describedby="a11y-summary"></canvas>
         <div class="chart-lock" id="chartlock" aria-hidden="true"><span>◆</span> Click the chart to zoom &amp; pan</div>
@@ -357,6 +362,7 @@
             <label>Gold <input id="h-gold" type="number" min="0" step="any" inputmode="decimal" placeholder="0" aria-label="Gold ounces"><span>oz</span></label>
             <label>Silver <input id="h-silver" type="number" min="0" step="any" inputmode="decimal" placeholder="0" aria-label="Silver ounces"><span>oz</span></label>
             <label>Platinum <input id="h-platinum" type="number" min="0" step="any" inputmode="decimal" placeholder="0" aria-label="Platinum ounces"><span>oz</span></label>
+            <label>Total invested <input id="h-cost" type="number" min="0" step="any" inputmode="decimal" placeholder="optional" aria-label="Total amount invested in dollars"><span>$</span></label>
           </div>
           <div class="hold-out tnum" id="hold-out" aria-live="polite"></div>
           <div class="hold-cta" id="hold-cta"></div>
@@ -1192,6 +1198,13 @@ async function refreshLive(){
     if(any){ liveAt=Date.now(); liveFails=0; idbPush(); setLive(true); renderSelector(); renderHeadline(); render();
       if(typeof checkAlerts==='function') checkAlerts();
       if(typeof renderHoldings==='function') renderHoldings();
+      if(typeof renderMilestone==='function') renderMilestone();
+      // live tab title — the price ticks even when this isn't the active tab
+      try{ const a=anchorClose('gold'), up=liveSpot.gold>=a[1];
+        const t=(up?'▲':'▼')+' $'+Math.round(liveSpot.gold).toLocaleString('en-US')+' Gold — GoldRock';
+        if(window.self===window.top) document.title=t;
+        else parent.postMessage({goldrock:'title', text:t},'*');
+      }catch(e){}
       const ls=document.getElementById('livestamp');
       if(ls) ls.innerHTML='<span style="color:var(--up)">●</span> <b>Live spot as of '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'</b>';
     } else { liveFails++; if(liveFails>=2||!liveAt) setLive(false); }   // 2 strikes before downgrading the pill
@@ -1301,8 +1314,13 @@ function renderHoldings(){
   if(tot<=0){ outEl.textContent=''; if(cta) cta.innerHTML=''; return; }
   let dd=tot-tot0; if(Math.abs(dd)<0.005) dd=0;
   const up=dd>=0;
+  let pl='';
+  const cost=+h.cost||0;                 // optional cost basis → lifetime gain/loss
+  if(cost>0){ const g=tot-cost, gup=g>=0;
+    pl=' <small class="'+(gup?'up':'down')+'">'+(gup?'▲':'▼')+' '+fmtMoney(Math.abs(g),2)
+      +' ('+(gup?'+':'−')+Math.abs(cost?g/cost*100:0).toFixed(1)+'%) since purchase</small>'; }
   outEl.innerHTML=fmtMoneyRich(tot,2)
-    +' <small class="'+(up?'up':'down')+'">'+(up?'▲':'▼')+' '+fmtMoney(Math.abs(dd),2)+' today</small>';
+    +' <small class="'+(up?'up':'down')+'">'+(up?'▲':'▼')+' '+fmtMoney(Math.abs(dd),2)+' today</small>'+pl;
   if(cta) cta.innerHTML='Adding to your position? <a href="tel:+18888590978">Speak with a specialist — (888)&nbsp;859-0978</a>';
 }
 (function(){
@@ -1310,7 +1328,7 @@ function renderHoldings(){
   t.addEventListener('click',()=>{ const open=c.hidden; c.hidden=!open; t.setAttribute('aria-expanded',String(open));
     if(open) renderHoldings(); });
   const h=holdLoad();
-  for(const k of ['gold','silver','platinum']){ const el=document.getElementById('h-'+k); if(!el) continue;
+  for(const k of ['gold','silver','platinum','cost']){ const el=document.getElementById('h-'+k); if(!el) continue;
     if(+h[k]>0) el.value=h[k];
     el.addEventListener('input',()=>{ const hh=holdLoad(); hh[k]=parseFloat(el.value)||0; holdSave(hh); renderHoldings(); track('holdings_used',true); });
   }
@@ -1438,14 +1456,51 @@ new ResizeObserver(()=>{clearTimeout(rt);rt=setTimeout(()=>render(),90);}).obser
 document.getElementById('yr').textContent=new Date().getFullYear();
 applyAccent(state.metal);
 const mn=document.getElementById('marketnote'); if(mn && META.note) mn.textContent=META.note;
+// milestone banner — only when a genuine, factual milestone is true right now
+function renderMilestone(){
+  const el=document.getElementById('milestone'); if(!el) return;
+  let txt='';
+  try{
+    const cur=liveSpot.gold;
+    if(cur){ let ath=cur; for(const p of DATA.gold) if(p[1]>ath) ath=p[1];
+      const gap=(1-cur/ath)*100;
+      if(cur>=ath) txt='Gold set a new all-time high today.';
+      else if(gap<=3) txt='Gold is within '+gap.toFixed(1)+'% of its all-time high.';
+    }
+    if(!txt){ const pc=ratioPercentile();
+      if(pc!=null && pc>=90) txt='The gold:silver ratio is higher today than '+pc+'% of all days on record.';
+      else if(pc!=null && pc<=10) txt='The gold:silver ratio is lower today than '+(100-pc)+'% of all days on record.'; }
+  }catch(e){}
+  el.innerHTML=txt?('<span>◆</span>'+txt):'';
+}
+// returning visitors get a personal delta — device-only, like everything else here
+(function(){ try{
+  const prev=JSON.parse(localStorage.getItem('gr-visit')||'null');
+  localStorage.setItem('gr-visit',JSON.stringify({ts:Date.now(), gold:liveSpot.gold}));
+  if(prev && typeof prev.gold==='number' && prev.gold>0 && liveSpot.gold){
+    const age=Date.now()-prev.ts;
+    if(age>6*3600000 && age<45*86400000){
+      const pc=(liveSpot.gold/prev.gold-1)*100;
+      if(Math.abs(pc)>=0.05 && mn){
+        const d=new Date(prev.ts);
+        const when=age<36*3600000?'yesterday':(age<7*86400000
+          ? d.toLocaleDateString('en-US',{weekday:'long'})
+          : d.toLocaleDateString('en-US',{month:'short',day:'numeric'}));
+        mn.textContent=(META.note?META.note+' ':'')+'Gold is '+(pc>=0?'up ':'down ')+Math.abs(pc).toFixed(1)+'% since your last visit '+when+'.';
+      } } }
+}catch(e){} })();
+renderMilestone();
 renderSelector(); renderHeadline(); renderNote(); render(); startAnim(); setLive(false);
 refreshLive();
 let liveTick=0;
 setInterval(()=>{ liveTick++;
   if(document.hidden) return;                          // never poll a tab nobody is looking at
-  if(liveFails>=3 && liveTick%3!==0) return;           // feed down → back off to every 3 minutes
+  let period=4;                                        // 60s baseline (15s ticks)
+  if(state.tf==='1D'||chartActive) period=2;           // engaged or watching today: 30s
+  if(liveFails>=3) period=12;                          // feed down → back off to 3 minutes
+  if(liveTick%period!==0) return;
   refreshLive();
-},60000);
+},15000);
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) refreshLive(); });   // instant catch-up on return
 
 // Seamless full-page embed: match the parent's viewport for the hero, and tell the

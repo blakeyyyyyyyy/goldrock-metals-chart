@@ -103,3 +103,22 @@ Add a Code element (or your SEO plugin's "custom schema" box) containing:
 ]}
 </script>
 ```
+
+---
+
+## The page network (v3): one chart, five ranking pages
+
+The plugin forwards `?metal / tf / compare / ratio / real` from the page URL into
+the chart, so each of these is just a NEW WordPress page with the same
+`[goldrock_chart]` shortcode plus its own copy:
+
+| Page slug | Deep link the page targets | Ranks for |
+|---|---|---|
+| `/silver-prices/` | `?metal=silver` | "silver price today", "silver spot price" |
+| `/platinum-prices/` | `?metal=platinum` | "platinum price today" |
+| `/gold-silver-ratio/` | `?ratio=1&tf=MAX` | "gold silver ratio" (huge, underserved) |
+| `/gold-price-history/` | `?tf=MAX&real=1` | "gold price history", "gold price inflation adjusted" |
+
+For each page: unique H1 + 2-3 intro paragraphs + the shortcode + 3-4 FAQ items
+(mirror the live-prices pattern). Do NOT reuse the same text across pages —
+Google needs each to be distinct. Same LiteSpeed purge after publishing.

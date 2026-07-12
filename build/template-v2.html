@@ -48,6 +48,30 @@
   a{color:inherit}
   .up{color:var(--up)} .down{color:var(--down)}
 
+  /* ================= SITE HEADER (standalone mode) ================= */
+  .sitehead{position:sticky;top:0;z-index:70;display:flex;align-items:center;justify-content:space-between;gap:20px;
+    padding:12px clamp(18px,3.5vw,44px);background:rgba(6,6,8,.94);
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(227,186,78,.22)}
+  .sitehead[hidden]{display:none}
+  .sh-brand{display:flex;align-items:center;gap:12px;text-decoration:none;flex:0 0 auto}
+  .sh-brand img{width:46px;height:46px;filter:drop-shadow(0 1px 8px rgba(227,186,78,.35))}
+  .sh-name{font-family:var(--serif);font-size:21px;color:var(--ivory);line-height:1}
+  .sh-name small{display:block;font-family:var(--sans);font-size:8.5px;font-weight:600;letter-spacing:.34em;
+    text-transform:uppercase;color:var(--gold);margin-top:4px}
+  .sh-nav{display:flex;gap:clamp(12px,2.4vw,30px);flex-wrap:wrap;justify-content:center}
+  .sh-nav a{color:var(--muted);text-decoration:none;font-size:12px;font-weight:600;letter-spacing:.12em;
+    text-transform:uppercase;transition:color var(--dur) var(--ease);padding:6px 2px}
+  .sh-nav a:hover{color:var(--gold-bright)}
+  .sh-call{text-align:right;text-decoration:none;color:var(--gold-bright);font-family:var(--serif);font-size:17px;
+    line-height:1.1;flex:0 0 auto}
+  .sh-call small{display:block;font-family:var(--sans);font-size:10px;color:var(--muted);letter-spacing:.05em;margin-bottom:2px}
+  @media(max-width:760px){
+    .sitehead{flex-wrap:wrap;justify-content:center;row-gap:6px}
+    .sh-nav{order:3;width:100%}
+    .sh-call small{display:none}
+  }
+
   /* ================= STAGE (the slate + the living chart, as one) ================= */
   .stage{position:relative;width:100%;min-height:100vh;overflow:hidden;display:flex;flex-direction:column}
   @supports (min-height:100dvh){.stage{min-height:100dvh}}   /* iOS address-bar-safe */
@@ -290,6 +314,23 @@
 </style>
 </head>
 <body>
+
+  <!-- site-matching header: shown standalone (or with ?header=1) so the chart works
+       as a complete page; hidden when embedded under the site's own header -->
+  <header class="sitehead" id="sitehead" hidden>
+    <a class="sh-brand" href="https://www.goldrockmetalexchange.com/">
+      <img src="__LOGO_URI__" alt="GoldRock Metal Exchange">
+      <span class="sh-name">GoldRock<small>Metal Exchange</small></span>
+    </a>
+    <nav class="sh-nav" aria-label="Site">
+      <a href="https://www.goldrockmetalexchange.com/">Home</a>
+      <a href="https://www.goldrockmetalexchange.com/shop/">Products</a>
+      <a href="https://www.goldrockmetalexchange.com/ira/">IRA</a>
+      <a href="https://www.goldrockmetalexchange.com/about-us/">About Us</a>
+      <a href="https://www.goldrockmetalexchange.com/contact/">Contact</a>
+    </nav>
+    <a class="sh-call" href="tel:+18888590978"><small>Speak with a specialist</small>(888) 859-0978</a>
+  </header>
 
   <section class="stage">
     <div class="stage-bg"></div>
@@ -1455,6 +1496,15 @@ let rt=null;
 new ResizeObserver(()=>{clearTimeout(rt);rt=setTimeout(()=>render(),90);}).observe(box);
 document.getElementById('yr').textContent=new Date().getFullYear();
 applyAccent(state.metal);
+// standalone header: on when we're the whole page (or the embedder asks via ?header=1);
+// off when the parent page already provides the site header
+(function(){
+  const sh=document.getElementById('sitehead'); if(!sh) return;
+  let want=window.self===window.top;
+  try{ if(new URLSearchParams(location.search).get('header')==='1') want=true; }catch(e){}
+  if(want){ sh.hidden=false;
+    const tb=document.querySelector('.topbar'); if(tb) tb.style.display='none'; }   // no double phone rows
+})();
 const mn=document.getElementById('marketnote'); if(mn && META.note) mn.textContent=META.note;
 // milestone banner — only when a genuine, factual milestone is true right now
 function renderMilestone(){

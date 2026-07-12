@@ -41,6 +41,7 @@ OUT_DIR = os.environ.get('GOLDROCK_OUT_DIR', PROJECT_DIR)
 # own output alongside the canonical one. Defaults preserve the original pipeline exactly.
 TEMPLATE_NAME = os.environ.get('GOLDROCK_TEMPLATE', 'template.html')
 INDEX_NAME = os.environ.get('GOLDROCK_INDEX', 'index.html')
+LOGO_NAME = os.environ.get('GOLDROCK_LOGO', 'logo-gold.svg')
 CANONICAL_OUT = os.path.join(OUT_DIR, INDEX_NAME)
 MIRROR_OUT = '/tmp/goldrock-metals-chart/' + INDEX_NAME
 # Persisted per-day price snapshots — fills days the free source lags on so the
@@ -580,7 +581,7 @@ def run():
     with open(os.path.join(BUILD_DIR, TEMPLATE_NAME)) as f:
         tpl = f.read()
     import base64
-    with open(os.path.join(BUILD_DIR, 'logo-gold.svg'), 'rb') as f:
+    with open(os.path.join(BUILD_DIR, LOGO_NAME), 'rb') as f:
         logo_uri = 'data:image/svg+xml;base64,' + base64.b64encode(f.read()).decode('ascii')
     with open(os.path.join(BUILD_DIR, 'hero.jpg'), 'rb') as f:
         hero_uri = 'data:image/jpeg;base64,' + base64.b64encode(f.read()).decode('ascii')

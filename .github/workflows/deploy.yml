@@ -58,6 +58,17 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh api -X PUT repos/${{ github.repository }}/actions/workflows/deploy.yml/enable || true
+      # Dead-man's switch: if the refresh ever fails, push a notification straight to
+      # Blake's phone via ntfy.sh (keyless — install the ntfy app and subscribe to the
+      # topic below). The topic name is the only secret; keep it unguessable.
+      - name: Failure alert to phone (ntfy.sh)
+        if: failure()
+        run: |
+          curl -s -m 10 \
+            -H "Title: GoldRock chart build FAILED" \
+            -H "Priority: high" -H "Tags: warning,chart_with_downwards_trend" \
+            -d "The scheduled price refresh failed. Check https://github.com/${{ github.repository }}/actions" \
+            https://ntfy.sh/goldrock-metals-vxk49q2 || true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: public

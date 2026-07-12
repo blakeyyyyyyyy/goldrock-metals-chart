@@ -328,6 +328,7 @@
             </div>
             <button class="iconbtn" id="cmp" title="Overlay all three metals — % change over the current period" aria-pressed="false">⇄ Compare</button>
             <button class="iconbtn" id="dl-chart" title="Download this chart as an image" aria-label="Download chart image">⤓ Save</button>
+            <button class="iconbtn" id="share" title="Copy a link that opens the chart exactly like this" aria-label="Copy link to this view">⧉ Link</button>
           </div>
         </div>
         <div class="readout">
@@ -451,12 +452,22 @@ if (!DATA || typeof DATA !== 'object' || !DATA.gold) {
 
 const DAY = 86400000;
 const REDUCE = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+// first-party analytics: the chart only tells its OWN parent page what happened —
+// no cookies, no third parties, nothing leaves the GoldRock site
+const sentEv={};
+function track(name,once){ if(once&&sentEv[name]) return; sentEv[name]=1;
+  try{ if(window.self!==window.top) parent.postMessage({goldrock:'event',name:String(name)},'*'); }catch(e){} }
 function getVar(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
 const METALS = {
   gold:     {label:'Gold',     sym:'XAU', acc:getVar('--gold-accent'),   core:'#fff3d2', decimals:2},
   silver:   {label:'Silver',   sym:'XAG', acc:getVar('--silver-accent'), core:'#ffffff', decimals:2},
   platinum: {label:'Platinum', sym:'XPT', acc:getVar('--plat-accent'),   core:'#f0f8ff', decimals:2},
+  // virtual series: ounces of silver per ounce of gold — unitless (unit:'x')
+  ratio:    {label:'Gold : Silver Ratio', sym:'G/S', acc:'#e8e0cc', core:'#ffffff', decimals:1, unit:'x'},
 };
+function isX(){ const m=METALS[state.metal]; return !!(m&&m.unit==='x'); }   // unitless mode (the ratio)
+function fmtVal(v,dec){ return isX() ? (v==null||isNaN(v)?'—':(+v).toFixed(dec)) : fmtMoney(v,dec); }
+function fmtValRich(v,dec){ return isX() ? (v==null||isNaN(v)?'—':(+v).toFixed(dec)) : fmtMoneyRich(v,dec); }
 const TF_DAYS = {'1W':7,'1M':30,'6M':182,'1Y':365,'5Y':1825,'10Y':3650};
 const liveSpot = Object.assign({}, META.live);
 let state = {metal:'gold', tf:'1Y', compare:false};
@@ -470,7 +481,25 @@ const ANNOS=[['1971-08-15','Gold standard ends'],['1980-01-21','1980 peak'],['20
   ['2011-09-06','2011 peak'],['2020-08-06','COVID record'],['2026-01-26','2026 surge']]
   .map(a=>[Date.parse(a[0]+'T00:00:00Z'),a[1]]);
 
+let ratioCache=null;
+function ratioSeries(){   // gold/silver aligned on shared trading days, live tip included
+  if(ratioCache && ratioCache.g===liveSpot.gold && ratioCache.s===liveSpot.silver) return ratioCache.out;
+  const sm=new Map(DATA.silver);
+  const out=[];
+  for(const p of DATA.gold){ const sv=sm.get(p[0]); if(sv) out.push([p[0]*DAY, p[1]/sv]); }
+  if(liveSpot.gold!=null && liveSpot.silver && out.length)
+    out[out.length-1]=[out[out.length-1][0], liveSpot.gold/liveSpot.silver];
+  ratioCache={g:liveSpot.gold, s:liveSpot.silver, out};
+  return out;
+}
+function ratioPercentile(){   // how expensive is silver vs gold, against ALL recorded days
+  const s=ratioSeries(); if(!s.length) return null;
+  const cur=s[s.length-1][1]; let below=0;
+  for(const p of s) if(p[1]<cur) below++;
+  return Math.round(below/s.length*100);
+}
 function series(metal){
+  if(metal==='ratio') return ratioSeries();
   const s = DATA[metal].map(p => [p[0]*DAY, p[1]]);
   const lv = liveSpot[metal];
   if (lv != null && s.length) s[s.length-1] = [s[s.length-1][0], lv];
@@ -498,11 +527,18 @@ function idbPush(){
   }catch(e){}
 }
 function anchorClose(metal){          // last REAL close strictly before today (UTC) — raw data, not the live-overwritten tip
+  if(metal==='ratio'){ const g=anchorClose('gold'), s=anchorClose('silver'); return [Math.max(g[0],s[0]), g[1]/s[1]]; }
   const raw=DATA[metal], todayOff=Math.floor(Date.now()/DAY);
   let ai=raw.length-1; while(ai>0 && raw[ai][0]>=todayOff) ai--;
   return raw[ai];
 }
 function intradaySeries(metal){
+  if(metal==='ratio'){   // zip the gold and silver buffers (same tick timestamps)
+    const g=intradaySeries('gold'), sv=intradaySeries('silver');
+    const sm=new Map(sv); const out=[];
+    for(const p of g){ const s2=sm.get(p[0]); if(s2) out.push([p[0], p[1]/s2]); }
+    return out.length>=2 ? out : series('ratio').slice(-2);
+  }
   const a=anchorClose(metal);
   // anchor at the END of the close's day, so the buffer's own ticks from that day are
   // dropped by the p[0]>anchor filter — otherwise the close would plot BEFORE the ticks
@@ -558,7 +594,8 @@ function windowPts(metal){
 function niceTicks(min,max,n){ const span=(max-min)||1, raw=span/n, mag=Math.pow(10,Math.floor(Math.log10(raw)));
   const norm=raw/mag; let step=norm>=5?10:norm>=2?5:norm>=1?2:1; step*=mag;
   const start=Math.ceil(min/step)*step, out=[]; for(let v=start; v<=max+step*.001; v+=step) out.push(v); return out; }
-function fmtAxis(v){ if(v>=100) return '$'+Math.round(v).toLocaleString('en-US');
+function fmtAxis(v){ if(isX()) return v>=100?String(Math.round(v)):(+v).toFixed(1);
+  if(v>=100) return '$'+Math.round(v).toLocaleString('en-US');
   if(v>=10) return '$'+v.toFixed(0); if(v>=1) return '$'+v.toFixed(1); return '$'+v.toFixed(2); }
 function fmtDateTick(ms,span){ const d=new Date(ms);
   if(span<=2*DAY) return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
@@ -748,7 +785,8 @@ function render(){
   if(state.compare){ renderCompare(W,H,x0,x1,y0,y1,fromMs,toMs,spanMs); snapFrame(); return; }
 
   // ambient seams of the other two metals, over the SAME window (so they track the timeframe/zoom)
-  for(const g of ['gold','silver','platinum']) if(g!==state.metal) drawGhost(g, x0, x1, H, fromMs, spanMs);
+  if(state.metal!=='ratio')   // the ratio view stays clean — no price seams behind a unitless line
+    for(const g of ['gold','silver','platinum']) if(g!==state.metal) drawGhost(g, x0, x1, H, fromMs, spanMs);
 
   // only points actually inside the window drive the price scale + markers
   const vis=pts.filter(p=>p[0]>=fromMs-1 && p[0]<=toMs+1);
@@ -889,8 +927,8 @@ function onMove(e){
       // pre-1968 history is monthly/weekly — never label a month's move as a "day change"
       const lbl=gap<=5*DAY?'day change':'since '+fmtDateFull(prev[0]);
       sub='<div class="tsub '+(dd>=0?'up':'down')+' tnum">'+(dd>=0?'▲':'▼')+' '
-        +fmtMoney(Math.abs(dd),METALS[state.metal].decimals)+' ('+(dd>=0?'+':'−')+Math.abs(pc2).toFixed(2)+'%) '+lbl+'</div>'; }
-    document.getElementById('tip-price').innerHTML=fmtMoney(p[1],METALS[state.metal].decimals)+sub;
+        +fmtVal(Math.abs(dd),METALS[state.metal].decimals)+' ('+(dd>=0?'+':'−')+Math.abs(pc2).toFixed(2)+'%) '+lbl+'</div>'; }
+    document.getElementById('tip-price').innerHTML=fmtVal(p[1],METALS[state.metal].decimals)+sub;
   }
   tip.style.opacity=1; const tw=tip.offsetWidth,th=tip.offsetHeight;
   let tx=px+14; if(tx+tw>box.clientWidth-4) tx=px-tw-14;
@@ -899,7 +937,8 @@ function onMove(e){
 function onLeave(){ tip.style.opacity=0; if(!dragging) redrawBase(); }
 // chart must be "engaged" (clicked) before it captures the scroll wheel — so the page scrolls freely otherwise
 let chartActive=false;
-function setActive(on){ if(chartActive===on) return; chartActive=on; box.classList.toggle('active',on); }
+function setActive(on){ if(chartActive===on) return; chartActive=on; box.classList.toggle('active',on);
+  if(on) track('chart_engaged',true); }
 let pinchD=0, pinchC=0;
 function touchDist(e){ const a=e.touches[0],b=e.touches[1]; return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY); }
 cv.addEventListener('mousemove',onMove); cv.addEventListener('mouseleave',onLeave);
@@ -955,14 +994,17 @@ function computeStats(metal){
 }
 function renderHeadline(){
   const m=METALS[state.metal], st=computeStats(state.metal), dec=m.decimals;
-  document.getElementById('hl-price').innerHTML=fmtMoneyRich(st.cur,dec);
+  document.getElementById('hl-price').innerHTML=fmtValRich(st.cur,dec);
   // permanent "today" readout, anchored to the last close before the newest session —
   // the default 1Y view should still answer "what has it done today?"
   // anchorClose = last REAL close strictly before today (raw data, immune to the
   // live-overwritten tip) — the same anchor the holdings card uses, so they always agree
   const anch=anchorClose(state.metal), tEl=document.getElementById('hl-today');
-  const rawLast=DATA[state.metal][DATA[state.metal].length-1];
-  const lastLive=liveSpot[state.metal]!=null?liveSpot[state.metal]:rawLast[1];
+  const rawSrc=DATA[state.metal==='ratio'?'gold':state.metal];
+  const rawLast=rawSrc[rawSrc.length-1];
+  const lastLive=state.metal==='ratio'
+    ? (liveSpot.gold!=null&&liveSpot.silver ? liveSpot.gold/liveSpot.silver : ratioSeries()[ratioSeries().length-1][1])
+    : (liveSpot[state.metal]!=null?liveSpot[state.metal]:rawLast[1]);
   if(tEl){ if(anch && anch[1]){
     let dd2=lastLive-anch[1]; if(Math.abs(dd2)<0.005) dd2=0;
     const pc3=dd2/anch[1]*100;
@@ -972,18 +1014,29 @@ function renderHeadline(){
   if(Math.abs(st.chg)<Math.pow(10,-dec)/2){ st.chg=0; st.pct=0; }   // a sub-display-unit move is flat, never "−$0.00"
   const up=st.chg>=0, d=document.getElementById('hl-delta');
   d.className=up?'up':'down';
-  d.textContent=(up?'▲ ':'▼ ')+fmtMoney(Math.abs(st.chg),dec)+' ('+(up?'+':'−')+Math.abs(st.pct).toFixed(2)+'%)';
+  d.textContent=(up?'▲ ':'▼ ')+fmtVal(Math.abs(st.chg),dec)+' ('+(up?'+':'−')+Math.abs(st.pct).toFixed(2)+'%)';
   document.getElementById('hl-range').textContent=state.view?'IN VIEW':(state.tf==='MAX'?'ALL TIME':state.tf);
   const stats=[
-    ['Open',fmtMoney(st.open,dec)],['Period High',fmtMoney(st.hi,dec)],['Period Low',fmtMoney(st.lo,dec)],
-    ['Change',(up?'+':'−')+fmtMoney(Math.abs(st.chg),dec)],
-    ['52-Wk Range',fmtMoney(st.l52,dec)+' <small>–</small> '+fmtMoney(st.h52,dec)],
-    ['All-Time High',fmtMoney(st.ath,dec)],
+    ['Open',fmtVal(st.open,dec)],['Period High',fmtVal(st.hi,dec)],['Period Low',fmtVal(st.lo,dec)],
+    ['Change',(up?'+':'−')+fmtVal(Math.abs(st.chg),dec)],
+    ['52-Wk Range',fmtVal(st.l52,dec)+' <small>–</small> '+fmtVal(st.h52,dec)],
+    ['All-Time High',fmtVal(st.ath,dec)],
   ];
   const gs=series('gold'), ss=series('silver');   // the ratio metals investors actually watch
   if(gs.length&&ss.length&&ss[ss.length-1][1]) stats.push(['Gold:Silver Ratio',(gs[gs.length-1][1]/ss[ss.length-1][1]).toFixed(1)]);
+  if(isX()){ const pc=ratioPercentile();          // context that makes the ratio mean something
+    if(pc!=null) stats.push(['Higher Than',pc+'%<small> of all days on record</small>']); }
   document.getElementById('stats').innerHTML=stats.map(([k,v])=>
     `<div class="stat"><div class="k">${k}</div><div class="v tnum">${v}</div></div>`).join('');
+  // the ratio card is a door: click to chart the full ratio history, click again to come back
+  for(const c of document.querySelectorAll('#stats .stat')){
+    const k=c.querySelector('.k'); if(!k||k.textContent!=='Gold:Silver Ratio') continue;
+    c.style.cursor='pointer'; c.setAttribute('role','button'); c.setAttribute('tabindex','0');
+    c.title=state.metal==='ratio'?'Back to the gold chart':'Chart the full Gold:Silver ratio history';
+    const go=()=>{ track('ratio_view',true); selectMetal(state.metal==='ratio'?'gold':'ratio'); };
+    c.addEventListener('click',go);
+    c.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } });
+  }
   renderPerf(); syncDateInputs(); updateA11y();
 }
 // performance-since chips — read the returns at a glance, click to jump the chart there
@@ -1054,7 +1107,9 @@ function selectMetal(m){ cancelViewGlide(); state.metal=m; applyAccent(m);
     state.view={from, to:from+span}; }
   renderSelector(); renderHeadline(); startAnim(); if(typeof syncAlertMetal==='function') syncAlertMetal(); }
 document.querySelectorAll('#tframes button').forEach(b=>b.addEventListener('click',()=>{
-  cancelViewGlide(); state.tf=b.dataset.tf; state.view=null; syncTfHighlight(); renderHeadline(); startAnim(); }));
+  cancelViewGlide(); state.tf=b.dataset.tf; state.view=null;
+  if(state.tf==='1D') track('view_1d',true);
+  syncTfHighlight(); renderHeadline(); startAnim(); }));
 document.querySelectorAll('#zoom button').forEach(b=>b.addEventListener('click',()=>{
   const z=b.dataset.z;
   if(z==='reset'){ cancelViewGlide(); state.view=null; syncTfHighlight(); renderHeadline(); startAnim(); return; }
@@ -1065,6 +1120,7 @@ if(cmpBtn) cmpBtn.addEventListener('click',()=>{
   cancelViewGlide(); dragging=false; dragMoved=false; pinchD=0; t1Mode=null;   // no gesture may straddle a mode switch
   tip.style.opacity=0;                                                          // a $-tooltip must not linger over a %-chart
   state.compare=!state.compare;
+  if(state.compare) track('compare_on',true);
   cmpBtn.classList.toggle('on',state.compare); cmpBtn.setAttribute('aria-pressed',String(state.compare));
   render();                                    // sync frame: hover state can never mix the two modes
   renderHeadline(); startAnim(); });
@@ -1133,7 +1189,7 @@ function exportChart(){
   g.setTransform(dpr,0,0,dpr,0,0);
   const st=computeStats(state.metal), m=METALS[state.metal];
   g.textBaseline='top'; g.fillStyle='#f6f3ec'; g.font='600 20px '+getVar('--serif');
-  g.fillText('GoldRock · '+(state.compare?'Gold vs Silver vs Platinum (% change)':m.label+'  '+fmtMoney(st.cur,m.decimals)), 14, 12);
+  g.fillText('GoldRock · '+(state.compare?'Gold vs Silver vs Platinum (% change)':m.label+'  '+fmtVal(st.cur,m.decimals)), 14, 12);
   g.fillStyle=getVar('--muted'); g.font='11px '+getVar('--sans');
   g.fillText('goldrockmetalexchange.com · '+(state.view?'custom range':state.tf)+' · '+new Date().toLocaleDateString('en-US'), 14, 40);
   g.setTransform(1,0,0,1,0,0); g.drawImage(cv,0,pad);
@@ -1141,6 +1197,35 @@ function exportChart(){
   a.download='goldrock-'+(state.compare?'compare':state.metal)+'-'+(state.view?'custom':(state.tf||'view'))+'.png'; a.click();
 }
 document.getElementById('dl-chart').addEventListener('click',exportChart);
+
+// deep links: ?metal=silver&tf=5Y&compare=1&ratio=1 opens the chart in that exact state
+(function(){ try{
+  const q=new URLSearchParams(location.search);
+  const m=q.get('metal'); if(m && METALS[m]) state.metal=m;
+  if(q.get('ratio')==='1') state.metal='ratio';
+  const tf=q.get('tf'); if(tf && (TF_DAYS[tf]||tf==='1D'||tf==='YTD'||tf==='MAX')) state.tf=tf;
+  if(q.get('compare')==='1'){ state.compare=true;
+    const cb=document.getElementById('cmp'); if(cb){ cb.classList.add('on'); cb.setAttribute('aria-pressed','true'); } }
+}catch(e){} })();
+// copy-link: always points at the site page, which forwards the params into the embed
+const shareBtn=document.getElementById('share');
+if(shareBtn) shareBtn.addEventListener('click',async()=>{
+  const q=new URLSearchParams();
+  if(state.metal==='ratio') q.set('ratio','1');
+  else if(state.metal!=='gold') q.set('metal',state.metal);
+  if(state.tf!=='1Y') q.set('tf',state.tf);
+  if(state.compare) q.set('compare','1');
+  const url='https://www.goldrockmetalexchange.com/live-prices/'+(q.toString()?'?'+q.toString():'');
+  let ok=false;
+  try{ await navigator.clipboard.writeText(url); ok=true; }catch(e){}
+  if(!ok){ try{ window.prompt('Copy this link:', url); ok=true; }catch(e){} }
+  track('link_shared');
+  const old='⧉ Link'; shareBtn.textContent=ok?'✓ Copied':old;
+  setTimeout(()=>{ shareBtn.textContent=old; },1600);
+});
+// the money event: any tap on a phone number, anywhere on the page
+document.addEventListener('click',e=>{ const a=e.target && e.target.closest && e.target.closest('a[href^="tel:"]');
+  if(a) track('call_click'); },true);
 
 // keyboard access: focus the chart, arrows move a readout cursor, +/- zoom, Esc/Home reset
 let kbIdx=-1;
@@ -1161,8 +1246,8 @@ cv.addEventListener('keydown',e=>{
       document.getElementById('tip-price').innerHTML=c.rows;
       say=fmtDateFull(p[0])+' — '+c.say;
     } else {
-      document.getElementById('tip-price').textContent=fmtMoney(p[1],METALS[state.metal].decimals);
-      say=METALS[state.metal].label+' '+fmtDateFull(p[0])+': '+fmtMoney(p[1],METALS[state.metal].decimals);
+      document.getElementById('tip-price').textContent=fmtVal(p[1],METALS[state.metal].decimals);
+      say=METALS[state.metal].label+' '+fmtDateFull(p[0])+': '+fmtVal(p[1],METALS[state.metal].decimals);
     }
     tip.style.opacity=1; const tw=tip.offsetWidth,th=tip.offsetHeight;
     let tx=px+14; if(tx+tw>box.clientWidth-4) tx=px-tw-14;
@@ -1176,7 +1261,7 @@ cv.addEventListener('blur',()=>{ tip.style.opacity=0; kbIdx=-1; if(anim>=1) redr
 function updateA11y(){
   const el=document.getElementById('a11y-summary'); if(!el) return;
   const m=METALS[state.metal], st=computeStats(state.metal);
-  el.textContent=`${m.label}: ${fmtMoney(st.cur,m.decimals)} per troy ounce. `
+  el.textContent=`${m.label}: ${fmtVal(st.cur,m.decimals)}${isX()?' ounces of silver per ounce of gold':' per troy ounce'}. `
     +`${state.view?'Selected range':(state.tf==='MAX'?'All-time':state.tf)} change ${st.chg>=0?'up':'down'} ${Math.abs(st.pct).toFixed(2)} percent. `
     +`Range low ${fmtMoney(st.lo,m.decimals)}, high ${fmtMoney(st.hi,m.decimals)}. All-time high ${fmtMoney(st.ath,m.decimals)}.`;
 }
@@ -1207,7 +1292,7 @@ function renderHoldings(){
   const h=holdLoad();
   for(const k of ['gold','silver','platinum']){ const el=document.getElementById('h-'+k); if(!el) continue;
     if(+h[k]>0) el.value=h[k];
-    el.addEventListener('input',()=>{ const hh=holdLoad(); hh[k]=parseFloat(el.value)||0; holdSave(hh); renderHoldings(); });
+    el.addEventListener('input',()=>{ const hh=holdLoad(); hh[k]=parseFloat(el.value)||0; holdSave(hh); renderHoldings(); track('holdings_used',true); });
   }
   if(['gold','silver','platinum'].some(k=>+h[k]>0)){ c.hidden=false; t.setAttribute('aria-expanded','true');
     renderHoldings(); }   // liveSpot is pre-seeded from the baked build, so a value renders even before the first live tick
@@ -1275,7 +1360,8 @@ function updateAlertFeedback(){
   const move=Math.abs(r.target-r.cur);
   fb.innerHTML=`${METALS[metal].label} spot is <b>${fmtMoney(r.cur,dec)}</b> today — we’ll flag it the moment it ${r.dir==='above'?'rises':'falls'} <b>${r.pct.toFixed(1)}%</b> (${fmtMoney(move,dec)}) to <b>${fmtMoney(r.target,dec)}</b>.`;
 }
-function syncAlertMetal(){ const am=alEl('al-metal'); if(am && am.value!==state.metal){ am.value=state.metal; fillAlertPlaceholder(); updateAlertFeedback(); } }
+function syncAlertMetal(){ if(isX()) return;   // the alert form has no "ratio" option
+  const am=alEl('al-metal'); if(am && am.value!==state.metal){ am.value=state.metal; fillAlertPlaceholder(); updateAlertFeedback(); } }
 if(alForm){
   ['al-metal','al-dir'].forEach(id=>alEl(id).addEventListener('change',()=>{
     if(alEl('al-unit').value==='usd'){ const v=alEl('al-value');    // refresh the suggestion, but never a hand-typed value
@@ -1314,7 +1400,7 @@ if(alForm){
             +'Call <a href="tel:+18888590978" style="color:var(--gold-bright)">(888)&nbsp;859-0978</a>'
             +(mail?' or <a href="'+mail+'" style="color:var(--gold-bright)">email us your alert</a>':'')+' and we’ll set it up.';
           return; }
-        renderAlertChips();
+        renderAlertChips(); track('alert_saved');
         // Notification permission can't be granted inside a cross-origin iframe — only ask standalone
         try{ if(window.self===window.top && window.Notification && Notification.permission==='default') Notification.requestPermission(); }catch(nerr){}
         msg.className='alerts-msg ok';

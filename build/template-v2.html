@@ -28,7 +28,7 @@
     --gold:#e3ba4e; --gold-deep:#b8932f; --gold-bright:#ffe6a3;
     --ivory:#f6f3ec; --muted:#b7af9c; --muted2:#8b8474;
     --up:#5cc98a; --down:#e5735f;
-    --gold-accent:#efc65c; --silver-accent:#dbe2ec; --plat-accent:#aecbdd;
+    --gold-accent:#efc65c; --silver-accent:#e6eaee; --plat-accent:#7fadd6;
     --serif:"Didot","Hoefler Text","Playfair Display",Georgia,"Times New Roman",serif;
     --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     --hero:url(__HERO_URI__);   /* embedded once, reused by stage + footer */
@@ -512,7 +512,7 @@ function getVar(n){return getComputedStyle(document.documentElement).getProperty
 const METALS = {
   gold:     {label:'Gold',     sym:'XAU', acc:getVar('--gold-accent'),   core:'#fff3d2', decimals:2},
   silver:   {label:'Silver',   sym:'XAG', acc:getVar('--silver-accent'), core:'#ffffff', decimals:2},
-  platinum: {label:'Platinum', sym:'XPT', acc:getVar('--plat-accent'),   core:'#f0f8ff', decimals:2},
+  platinum: {label:'Platinum', sym:'XPT', acc:getVar('--plat-accent'),   core:'#cfe6ff', decimals:2},
   // virtual series: ounces of silver per ounce of gold — unitless (unit:'x')
   ratio:    {label:'Gold : Silver Ratio', sym:'G/S', acc:'#e8e0cc', core:'#ffffff', decimals:1, unit:'x'},
 };
@@ -666,11 +666,11 @@ function fmtDateFull(ms){ const d=new Date(ms);
   return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'}); }
 
 // faint ambient seams — the OTHER two metals' full history, low in the frame (veins in the stone)
-function drawGhost(metal, x0, x1, H, fromMs, spanMs){
+function drawGhost(metal, x0, x1, H, fromMs, spanMs, band){
   const s=windowPts(metal); if(s.length<2) return;   // same time window as the live line
   const acc=METALS[metal].acc;
   let mn=Infinity,mx=-Infinity; for(const p of s){ if(p[1]<mn)mn=p[1]; if(p[1]>mx)mx=p[1]; }
-  const band = metal==='silver' ? [0.80,0.965] : [0.70,0.86];
+  band = band || [0.70,0.86];
   const yTop=H*band[0], yBot=H*band[1], rng=Math.max(mx-mn, mx*0.002, 1e-9);   // flat seams stay flat
   const X=ms=>x0+(ms-fromMs)/spanMs*(x1-x0), Y=pr=>yBot-(pr-mn)/rng*(yBot-yTop);
   const draw=decimateMinMax(s,fromMs,spanMs,Math.max(80,Math.floor(x1-x0)));
@@ -772,9 +772,10 @@ function renderCompare(W,H,x0,x1,y0,y1,fromMs,toMs,spanMs){
     if(draw.length<2) continue;
     const P=new Path2D(); P.moveTo(X(draw[0][0]),Yr((draw[0][1]/s.p0-1)*100));
     for(const p of draw) P.lineTo(X(p[0]),Yr((p[1]/s.p0-1)*100));
-    ctx.strokeStyle=hexA(acc,.16); ctx.lineWidth=7; ctx.shadowColor=hexA(acc,.55); ctx.shadowBlur=14; ctx.stroke(P);
-    ctx.strokeStyle=hexA(acc,.55); ctx.lineWidth=2.6; ctx.shadowBlur=8; ctx.stroke(P);
-    ctx.strokeStyle=METALS[s.key].core; ctx.lineWidth=1.5; ctx.shadowBlur=3; ctx.stroke(P); ctx.shadowBlur=0;
+    // color identity first: the accent carries the line, the pale core is just a thin filament
+    ctx.strokeStyle=hexA(acc,.18); ctx.lineWidth=7; ctx.shadowColor=hexA(acc,.6); ctx.shadowBlur=14; ctx.stroke(P);
+    ctx.strokeStyle=hexA(acc,.85); ctx.lineWidth=2.6; ctx.shadowBlur=8; ctx.stroke(P);
+    ctx.strokeStyle=METALS[s.key].core; ctx.lineWidth=1; ctx.shadowBlur=2; ctx.stroke(P); ctx.shadowBlur=0;
   }
   ctx.restore();
 
@@ -840,9 +841,13 @@ function render(){
 
   if(state.compare){ renderCompare(W,H,x0,x1,y0,y1,fromMs,toMs,spanMs); snapFrame(); return; }
 
-  // ambient seams of the other two metals, over the SAME window (so they track the timeframe/zoom)
-  if(state.metal!=='ratio')   // the ratio view stays clean — no price seams behind a unitless line
-    for(const g of ['gold','silver','platinum']) if(g!==state.metal) drawGhost(g, x0, x1, H, fromMs, spanMs);
+  // ambient seams of the other two metals, over the SAME window (so they track the timeframe/zoom).
+  // Bands are assigned by SLOT, not by metal — the two ghosts must never share a band and tangle.
+  if(state.metal!=='ratio'){   // the ratio view stays clean — no price seams behind a unitless line
+    const GHOST_BANDS=[[0.70,0.86],[0.80,0.965]];
+    ['gold','silver','platinum'].filter(g=>g!==state.metal)
+      .forEach((g,i)=>drawGhost(g, x0, x1, H, fromMs, spanMs, GHOST_BANDS[i%2]));
+  }
 
   // only points actually inside the window drive the price scale + markers
   const vis=pts.filter(p=>p[0]>=fromMs-1 && p[0]<=toMs+1);
@@ -1495,7 +1500,7 @@ if(alForm){
 let rt=null;
 new ResizeObserver(()=>{clearTimeout(rt);rt=setTimeout(()=>render(),90);}).observe(box);
 document.getElementById('yr').textContent=new Date().getFullYear();
-applyAccent(state.metal);
+applyAccent(state.metal); syncTfHighlight();   // deep links may have changed tf — the static 1Y default must not linger
 // standalone header: on when we're the whole page (or the embedder asks via ?header=1);
 // off when the parent page already provides the site header
 (function(){

@@ -578,7 +578,7 @@ function drawGhost(metal, x0, x1, H, fromMs, spanMs){
   const acc=METALS[metal].acc;
   let mn=Infinity,mx=-Infinity; for(const p of s){ if(p[1]<mn)mn=p[1]; if(p[1]>mx)mx=p[1]; }
   const band = metal==='silver' ? [0.80,0.965] : [0.70,0.86];
-  const yTop=H*band[0], yBot=H*band[1], rng=(mx-mn)||1;
+  const yTop=H*band[0], yBot=H*band[1], rng=Math.max(mx-mn, mx*0.002, 1e-9);   // flat seams stay flat
   const X=ms=>x0+(ms-fromMs)/spanMs*(x1-x0), Y=pr=>yBot-(pr-mn)/rng*(yBot-yTop);
   const draw=decimateMinMax(s,fromMs,spanMs,Math.max(80,Math.floor(x1-x0)));
   const path=new Path2D(); path.moveTo(X(draw[0][0]),Y(draw[0][1])); for(const p of draw) path.lineTo(X(p[0]),Y(p[1]));
@@ -639,7 +639,8 @@ function renderCompare(W,H,x0,x1,y0,y1,fromMs,toMs,spanMs){
     sets.push({key:s.key,pts:s.pts,vis,p0});
   }
   if(!sets.length) return;
-  const pad=(mx-mn)*0.12||1; const rlo=mn-pad, rhi=mx+pad;
+  if(mx-mn<0.1){ const mid=(mx+mn)/2; mn=mid-0.05; mx=mid+0.05; }   // flat compare stays flat, not a cliff
+  const pad=(mx-mn)*0.12; const rlo=mn-pad, rhi=mx+pad;
   const Yr=r=>y1-(r-rlo)/((rhi-rlo)||1)*(y1-y0);
   const act=sets.find(s=>s.key===state.metal)||sets[0];
   view={pts:act.pts,X,Y:pr=>Yr((pr/act.p0-1)*100),x0,x1,y0,y1,fromMs,toMs,spanMs,cmp:sets,cmpY:Yr};
@@ -754,7 +755,11 @@ function render(){
   const scalePts=vis.length?vis:pts;
   let dMin=Infinity,dMax=-Infinity; for(const p of scalePts){ if(p[1]<dMin)dMin=p[1]; if(p[1]>dMax)dMax=p[1]; }
   const X=ms=>x0+(ms-fromMs)/spanMs*(x1-x0);
-  const padP=(dMax-dMin)*0.12||dMax*0.05; const minP=dMin-padP, maxP=dMax+padP;
+  // never scale tighter than 0.2% of the price: a closed-market window that moved by a
+  // fraction of a cent must render as a flat line, not a full-height cliff
+  const minRangeP=Math.max(dMax*0.002, 0.01);
+  if(dMax-dMin<minRangeP){ const mid=(dMax+dMin)/2; dMin=mid-minRangeP/2; dMax=mid+minRangeP/2; }
+  const padP=(dMax-dMin)*0.12; const minP=dMin-padP, maxP=dMax+padP;
   const Y=pr=>y1-(pr-minP)/((maxP-minP)||1)*(y1-y0); const yt=niceTicks(minP,maxP,5);
   view={pts,X,Y,minP,maxP,x0,x1,y0,y1,fromMs,toMs,spanMs};
 
@@ -879,7 +884,8 @@ function onMove(e){
   } else {
     ctx.beginPath(); ctx.arc(px,py,5,0,7); ctx.fillStyle=METALS[state.metal].core; ctx.shadowColor=acc; ctx.shadowBlur=12; ctx.fill(); ctx.shadowBlur=0;
     const prev=lo>0?pts[lo-1]:null; let sub='';
-    if(prev&&prev[1]){ const dd=p[1]-prev[1], pc2=dd/prev[1]*100, gap=p[0]-prev[0];
+    if(prev&&prev[1]){ let dd=p[1]-prev[1]; if(Math.abs(dd)<Math.pow(10,-METALS[state.metal].decimals)/2) dd=0;
+      const pc2=dd/prev[1]*100, gap=p[0]-prev[0];
       // pre-1968 history is monthly/weekly — never label a month's move as a "day change"
       const lbl=gap<=5*DAY?'day change':'since '+fmtDateFull(prev[0]);
       sub='<div class="tsub '+(dd>=0?'up':'down')+' tnum">'+(dd>=0?'▲':'▼')+' '
@@ -958,10 +964,12 @@ function renderHeadline(){
   const rawLast=DATA[state.metal][DATA[state.metal].length-1];
   const lastLive=liveSpot[state.metal]!=null?liveSpot[state.metal]:rawLast[1];
   if(tEl){ if(anch && anch[1]){
-    const dd2=lastLive-anch[1], pc3=dd2/anch[1]*100;
+    let dd2=lastLive-anch[1]; if(Math.abs(dd2)<0.005) dd2=0;
+    const pc3=dd2/anch[1]*100;
     const isToday=rawLast[0]===Math.floor(Date.now()/DAY);
     tEl.innerHTML='<span class="'+(dd2>=0?'up':'down')+'">'+(dd2>=0?'▲':'▼')+' '+Math.abs(pc3).toFixed(2)+'% '+(isToday?'today':'this session')+'</span>';
   } else tEl.textContent=''; }
+  if(Math.abs(st.chg)<Math.pow(10,-dec)/2){ st.chg=0; st.pct=0; }   // a sub-display-unit move is flat, never "−$0.00"
   const up=st.chg>=0, d=document.getElementById('hl-delta');
   d.className=up?'up':'down';
   d.textContent=(up?'▲ ':'▼ ')+fmtMoney(Math.abs(st.chg),dec)+' ('+(up?'+':'−')+Math.abs(st.pct).toFixed(2)+'%)';
@@ -1186,7 +1194,8 @@ function renderHoldings(){
     tot+=oz*cur; tot0+=oz*anchorClose(k)[1];
   }
   if(tot<=0){ outEl.textContent=''; if(cta) cta.innerHTML=''; return; }
-  const dd=tot-tot0, up=dd>=0;
+  let dd=tot-tot0; if(Math.abs(dd)<0.005) dd=0;
+  const up=dd>=0;
   outEl.innerHTML=fmtMoneyRich(tot,2)
     +' <small class="'+(up?'up':'down')+'">'+(up?'▲':'▼')+' '+fmtMoney(Math.abs(dd),2)+' today</small>';
   if(cta) cta.innerHTML='Adding to your position? <a href="tel:+18888590978">Speak with a specialist — (888)&nbsp;859-0978</a>';

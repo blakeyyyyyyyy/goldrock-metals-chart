@@ -50,7 +50,7 @@ jobs:
           mkdir -p public
           python3 build/build.py
           # also publish the v2 lab build alongside (domain-locked, previewable via embed)
-          GOLDROCK_TEMPLATE=template-v2.html GOLDROCK_INDEX=index-v2.html GOLDROCK_LOGO=logo-solo.svg python3 build/build.py
+          GOLDROCK_TEMPLATE=template-v2.html GOLDROCK_INDEX=index-v2.html GOLDROCK_LOGO=logo-brand.png python3 build/build.py
       # GitHub disables cron schedules in repos with 60 days of no activity; re-enabling
       # the workflow via the API resets that timer, keeping the refresh truly hands-off.
       - name: Keep the schedule alive

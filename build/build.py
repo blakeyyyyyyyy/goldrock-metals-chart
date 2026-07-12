@@ -581,8 +581,10 @@ def run():
     with open(os.path.join(BUILD_DIR, TEMPLATE_NAME)) as f:
         tpl = f.read()
     import base64
+    logo_mime = {'svg': 'image/svg+xml', 'png': 'image/png', 'webp': 'image/webp',
+                 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg'}[LOGO_NAME.rsplit('.', 1)[-1].lower()]
     with open(os.path.join(BUILD_DIR, LOGO_NAME), 'rb') as f:
-        logo_uri = 'data:image/svg+xml;base64,' + base64.b64encode(f.read()).decode('ascii')
+        logo_uri = 'data:' + logo_mime + ';base64,' + base64.b64encode(f.read()).decode('ascii')
     with open(os.path.join(BUILD_DIR, 'hero.jpg'), 'rb') as f:
         hero_uri = 'data:image/jpeg;base64,' + base64.b64encode(f.read()).decode('ascii')
     final = (tpl.replace('/*__DATA_JSON__*/0', data_json)

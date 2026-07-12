@@ -75,6 +75,8 @@
   @keyframes wmshine{0%{background-position:120% 0}55%{background-position:-80% 0}100%{background-position:-80% 0}}
   .tagline{margin-top:clamp(10px,1.8vh,20px);font-size:clamp(17px,2.1vw,27px);font-weight:400;color:#e9e3d6;
     text-shadow:0 2px 22px rgba(0,0,0,.8)}
+  .marketnote{margin-top:10px;font-size:13.5px;color:var(--muted);letter-spacing:.01em;text-shadow:0 1px 12px rgba(0,0,0,.8);min-height:0}
+  .marketnote:empty{display:none}
 
   /* control row */
   .controls{margin-top:clamp(20px,3.4vh,40px);display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap}
@@ -298,6 +300,7 @@
       <div class="stage-head">
         <h1 class="wordmark">GoldRock</h1>
         <p class="tagline">Live gold, silver &amp; platinum spot prices — charted back a century.</p>
+        <p class="marketnote" id="marketnote"></p>
       </div>
 
       <div class="controls">
@@ -327,6 +330,7 @@
               <button id="dr-go">Go</button>
             </div>
             <button class="iconbtn" id="cmp" title="Overlay all three metals — % change over the current period" aria-pressed="false">⇄ Compare</button>
+            <button class="iconbtn" id="real" title="Adjust the whole history for inflation — every price in today's dollars" aria-pressed="false">⟲ Real $</button>
             <button class="iconbtn" id="dl-chart" title="Download this chart as an image" aria-label="Download chart image">⤓ Save</button>
             <button class="iconbtn" id="share" title="Copy a link that opens the chart exactly like this" aria-label="Copy link to this view">⧉ Link</button>
           </div>
@@ -470,7 +474,11 @@ function fmtVal(v,dec){ return isX() ? (v==null||isNaN(v)?'—':(+v).toFixed(dec
 function fmtValRich(v,dec){ return isX() ? (v==null||isNaN(v)?'—':(+v).toFixed(dec)) : fmtMoneyRich(v,dec); }
 const TF_DAYS = {'1W':7,'1M':30,'6M':182,'1Y':365,'5Y':1825,'10Y':3650};
 const liveSpot = Object.assign({}, META.live);
-let state = {metal:'gold', tf:'1Y', compare:false};
+let state = {metal:'gold', tf:'1Y', compare:false, real:false};
+// inflation factor: multiply a historical price by this to express it in today's dollars
+function cpiFactor(ms){ const c=META.cpi; if(!c||!META.cpiBase) return 1;
+  let y=new Date(ms).getUTCFullYear(); while(y>1912 && !c[y]) y--;
+  const v=c[y]; return v ? META.cpiBase/v : 1; }
 
 // Lead-capture config. alertsEndpoint = a HubSpot form-submit URL (captures alerts into your CRM).
 // contactEmail = a REAL GoldRock inbox to enable the email fallback. Both empty = phone-only for now.
@@ -499,10 +507,11 @@ function ratioPercentile(){   // how expensive is silver vs gold, against ALL re
   return Math.round(below/s.length*100);
 }
 function series(metal){
-  if(metal==='ratio') return ratioSeries();
+  if(metal==='ratio') return ratioSeries();   // unitless — inflation cancels out
   const s = DATA[metal].map(p => [p[0]*DAY, p[1]]);
   const lv = liveSpot[metal];
   if (lv != null && s.length) s[s.length-1] = [s[s.length-1][0], lv];
+  if(state.real) return s.map(p=>[p[0], p[1]*cpiFactor(p[0])]);
   return s;
 }
 // --- 1D intraday: live quotes recorded into a rolling on-device buffer while the page
@@ -1015,7 +1024,7 @@ function renderHeadline(){
   const up=st.chg>=0, d=document.getElementById('hl-delta');
   d.className=up?'up':'down';
   d.textContent=(up?'▲ ':'▼ ')+fmtVal(Math.abs(st.chg),dec)+' ('+(up?'+':'−')+Math.abs(st.pct).toFixed(2)+'%)';
-  document.getElementById('hl-range').textContent=state.view?'IN VIEW':(state.tf==='MAX'?'ALL TIME':state.tf);
+  document.getElementById('hl-range').textContent=(state.view?'IN VIEW':(state.tf==='MAX'?'ALL TIME':state.tf))+(state.real?' · TODAY’S $':'');
   const stats=[
     ['Open',fmtVal(st.open,dec)],['Period High',fmtVal(st.hi,dec)],['Period Low',fmtVal(st.lo,dec)],
     ['Change',(up?'+':'−')+fmtVal(Math.abs(st.chg),dec)],
@@ -1115,6 +1124,14 @@ document.querySelectorAll('#zoom button').forEach(b=>b.addEventListener('click',
   if(z==='reset'){ cancelViewGlide(); state.view=null; syncTfHighlight(); renderHeadline(); startAnim(); return; }
   const cr=view?{from:view.fromMs,to:view.toMs}:currentRange(state.metal);
   const t=zoomTarget((cr.from+cr.to)/2, z==='in'?0.78:1.28); animateViewTo(t.from,t.to); }));
+const realBtn=document.getElementById('real');
+if(realBtn){
+  if(!META.cpi) realBtn.style.display='none';   // no CPI data → never show wrong numbers
+  else realBtn.addEventListener('click',()=>{
+    cancelViewGlide(); state.real=!state.real; track('real_dollars',true);
+    realBtn.classList.toggle('on',state.real); realBtn.setAttribute('aria-pressed',String(state.real));
+    renderSelector(); renderHeadline(); startAnim(); });
+}
 const cmpBtn=document.getElementById('cmp');
 if(cmpBtn) cmpBtn.addEventListener('click',()=>{
   cancelViewGlide(); dragging=false; dragMoved=false; pinchD=0; t1Mode=null;   // no gesture may straddle a mode switch
@@ -1206,6 +1223,8 @@ document.getElementById('dl-chart').addEventListener('click',exportChart);
   const tf=q.get('tf'); if(tf && (TF_DAYS[tf]||tf==='1D'||tf==='YTD'||tf==='MAX')) state.tf=tf;
   if(q.get('compare')==='1'){ state.compare=true;
     const cb=document.getElementById('cmp'); if(cb){ cb.classList.add('on'); cb.setAttribute('aria-pressed','true'); } }
+  if(q.get('real')==='1' && META.cpi){ state.real=true;
+    const rb=document.getElementById('real'); if(rb){ rb.classList.add('on'); rb.setAttribute('aria-pressed','true'); } }
 }catch(e){} })();
 // copy-link: always points at the site page, which forwards the params into the embed
 const shareBtn=document.getElementById('share');
@@ -1215,6 +1234,7 @@ if(shareBtn) shareBtn.addEventListener('click',async()=>{
   else if(state.metal!=='gold') q.set('metal',state.metal);
   if(state.tf!=='1Y') q.set('tf',state.tf);
   if(state.compare) q.set('compare','1');
+  if(state.real) q.set('real','1');
   const url='https://www.goldrockmetalexchange.com/live-prices/'+(q.toString()?'?'+q.toString():'');
   let ok=false;
   try{ await navigator.clipboard.writeText(url); ok=true; }catch(e){}
@@ -1417,6 +1437,7 @@ let rt=null;
 new ResizeObserver(()=>{clearTimeout(rt);rt=setTimeout(()=>render(),90);}).observe(box);
 document.getElementById('yr').textContent=new Date().getFullYear();
 applyAccent(state.metal);
+const mn=document.getElementById('marketnote'); if(mn && META.note) mn.textContent=META.note;
 renderSelector(); renderHeadline(); renderNote(); render(); startAnim(); setLive(false);
 refreshLive();
 let liveTick=0;

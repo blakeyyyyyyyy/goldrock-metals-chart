@@ -297,14 +297,83 @@ def fill_from_nbu(daily, metal, today_key):
 LASTGOOD_PATH = os.path.join(PROJECT_DIR, 'series-lastgood.json')
 
 
-def save_lastgood(gold, silver, platinum):
+def fetch_cpi():
+    """Annual-average CPI-U back to 1913, keyless (usinflationcalculator's BLS mirror).
+    The current partial year uses its latest monthly value. Returns {year:int -> cpi:float}
+    or None — the chart simply hides the Real-$ toggle rather than show wrong numbers."""
+    try:
+        h = fetch('https://www.usinflationcalculator.com/inflation/'
+                  'consumer-price-index-and-annual-percent-changes-from-1913-to-2008/',
+                  {'User-Agent': UA})
+        out = {}
+        for m in re.finditer(r'<strong>\s*((?:19|20)\d{2})\s*</strong>\s*</td>(.*?)</tr>', h, re.S):
+            year = int(m.group(1))
+            vals = re.findall(r'<td[^>]*>\s*([\d.]+)\s*</td>', m.group(2))
+            if len(vals) >= 13:
+                out[year] = float(vals[12])       # 13th numeric cell = annual average
+            elif vals:
+                out[year] = float(vals[-1])       # partial current year: latest month
+        if len(out) >= 100:
+            return out
+        log('WARN cpi parse found only %d years' % len(out))
+    except Exception as e:
+        log('WARN cpi fetch failed: %s' % e)
+    return None
+
+
+def ordinal(n):
+    return '%d%s' % (n, 'th' if 10 <= n % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th'))
+
+
+def market_note(daily):
+    """One factual sentence about gold, composed purely from the data — no opinions,
+    no advice, refreshed with every build."""
+    try:
+        if len(daily) < 4:
+            return ''
+        cur = daily[-1][1]; prev = daily[-2][1]
+        chg = cur - prev
+        pct = chg / prev * 100 if prev else 0
+        up = chg >= 0
+        streak = 1
+        for i in range(len(daily) - 1, 1, -1):
+            if ((daily[i - 1][1] - daily[i - 2][1]) >= 0) == up:
+                streak += 1
+                if streak >= 9:
+                    break
+            else:
+                break
+        ath = max(p for _, p in daily)
+        note = 'Gold is at $%s, %s %.1f%% from the prior close' % (
+            format(cur, ',.2f'), 'up' if up else 'down', abs(pct))
+        if streak >= 3:
+            note += ' — its %s consecutive %s' % (ordinal(streak), 'gain' if up else 'decline')
+        gap = (1 - cur / ath) * 100
+        if cur >= ath:
+            note += ' — a new all-time high'
+        elif gap <= 5:
+            note += ', %.1f%% below the all-time high' % gap
+        return note + '.'
+    except Exception:
+        return ''
+
+
+def load_lastgood_key(key):
+    try:
+        with open(LASTGOOD_PATH) as f:
+            return json.load(f).get(key)
+    except Exception:
+        return None
+
+
+def save_lastgood(gold, silver, platinum, cpi=None):
     """Persist the fully-assembled daily series so a future run whose SOURCE dies can
     still publish (frozen history + live tip) instead of failing until the source heals.
     Written atomically — a truncate-then-crash must never destroy the only fallback."""
     try:
         tmp = LASTGOOD_PATH + '.tmp'
         with open(tmp, 'w') as f:
-            json.dump({'gold': gold, 'silver': silver, 'platinum': platinum}, f)
+            json.dump({'gold': gold, 'silver': silver, 'platinum': platinum, 'cpi': cpi}, f)
         os.replace(tmp, LASTGOOD_PATH)
     except OSError as e:
         log('WARN could not save series-lastgood.json: %s' % e)
@@ -469,8 +538,17 @@ def run():
     silver_daily = merge_live_tail(silver_daily, live['silver'], today_key)
     platinum_daily = merge_live_tail(platinum_daily, live['platinum'], today_key)
 
+    # --- annual CPI for the Real-$ (inflation-adjusted) view ---
+    cpi = fetch_cpi()
+    if not cpi:
+        lg = load_lastgood_key('cpi')
+        if lg:
+            cpi = {int(k): v for k, v in lg.items()}
+            log('using last-good CPI (%d years)' % len(cpi))
+    log('cpi: %s' % ('%d years, latest %s=%s' % (len(cpi), max(cpi), cpi[max(cpi)]) if cpi else 'unavailable — Real-$ toggle hidden'))
+
     # --- remember this fully-assembled state for future fallback runs ---
-    save_lastgood(gold_daily, silver_daily, platinum_daily)
+    save_lastgood(gold_daily, silver_daily, platinum_daily, cpi)
 
     # --- thin old history, encode compactly ---
     series = {
@@ -491,6 +569,9 @@ def run():
         'start': {'gold': gold_daily[0][0], 'silver': silver_daily[0][0], 'platinum': platinum_daily[0][0]},
         'live': {k: round(v, 2) if v else v for k, v in live.items()},
         'points': {k: len(v) for k, v in series.items()},
+        'note': market_note(gold_daily),
+        'cpi': {str(k): v for k, v in sorted(cpi.items())} if cpi else None,
+        'cpiBase': cpi[max(cpi)] if cpi else None,
     }
 
     data_json = json.dumps(series, separators=(',', ':'))

@@ -304,11 +304,20 @@
     .callfab{right:14px;bottom:14px;padding:15px;border-radius:50%}
     .callfab span{display:none}
     /* 16px+ stops iOS Safari from auto-zooming the (host) page when a field is focused */
-    .alerts-form input,.alerts-form select,.al-input input,.al-input select,.daterange input[type=date]{font-size:16px}
+    .alerts-form input,.alerts-form select,.al-input input,.al-input select{font-size:16px}
     .perfrow{gap:6px}
     .perfchip{padding:5px 8px;font-size:10px}
   }
   @media(max-width:520px){
+    /* timeframes: all nine on ONE row */
+    .ctl-row{gap:8px;margin-top:10px}
+    .tframes{display:flex;flex-wrap:nowrap;width:100%;gap:3px}
+    .tframes button{flex:1 1 0;min-width:0;padding:7px 0;font-size:10px;letter-spacing:0}
+    .zoom{width:100%;justify-content:center;margin-left:0}
+    .zoom button{flex:1}
+    .daterange{width:100%;justify-content:center;gap:4px;padding:3px 5px}
+    .daterange input[type=date]{min-width:0;flex:1;font-size:11px;padding:6px 2px}
+    .iconbtn{flex:1 1 0;min-width:0;text-align:center;padding:8px 4px;font-size:10.5px}
     /* the three metal tabs must always share ONE row on phones */
     .metaltabs{display:flex;width:100%;gap:3px;padding:4px}
     .mtab{flex:1 1 0;min-width:0;justify-content:center;gap:5px;padding:7px 4px;

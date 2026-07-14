@@ -304,11 +304,20 @@
     .callfab{right:14px;bottom:14px;padding:15px;border-radius:50%}
     .callfab span{display:none}
     /* 16px+ stops iOS Safari from auto-zooming the (host) page when a field is focused */
-    .alerts-form input,.alerts-form select,.al-input input,.al-input select,.daterange input[type=date]{font-size:16px}
+    .alerts-form input,.alerts-form select,.al-input input,.al-input select{font-size:16px}
     .perfrow{gap:6px}
     .perfchip{padding:5px 8px;font-size:10px}
   }
   @media(max-width:520px){
+    /* timeframes: all nine on ONE row */
+    .ctl-row{gap:8px;margin-top:10px}
+    .tframes{display:flex;flex-wrap:nowrap;width:100%;gap:3px}
+    .tframes button{flex:1 1 0;min-width:0;padding:7px 0;font-size:10px;letter-spacing:0}
+    .zoom{width:100%;justify-content:center;margin-left:0}
+    .zoom button{flex:1}
+    .daterange{width:100%;justify-content:center;gap:4px;padding:3px 5px}
+    .daterange input[type=date]{min-width:0;flex:1;font-size:11px;padding:6px 2px}
+    .iconbtn{flex:1 1 0;min-width:0;text-align:center;padding:8px 4px;font-size:10.5px}
     /* the three metal tabs must always share ONE row on phones */
     .metaltabs{display:flex;width:100%;gap:3px;padding:4px}
     .mtab{flex:1 1 0;min-width:0;justify-content:center;gap:5px;padding:7px 4px;
@@ -388,7 +397,6 @@
               <button id="dr-go">Go</button>
             </div>
             <button class="iconbtn" id="cmp" title="Overlay all three metals — % change over the current period" aria-pressed="false">⇄ Compare</button>
-            <button class="iconbtn" id="real" title="Adjust the whole history for inflation — every price in today's dollars" aria-pressed="false">⟲ Real $</button>
             <button class="iconbtn" id="dl-chart" title="Download this chart as an image" aria-label="Download chart image">⤓ Save</button>
             <button class="iconbtn" id="share" title="Copy a link that opens the chart exactly like this" aria-label="Copy link to this view">⧉ Link</button>
           </div>
@@ -1194,14 +1202,6 @@ document.querySelectorAll('#zoom button').forEach(b=>b.addEventListener('click',
   if(z==='reset'){ cancelViewGlide(); state.view=null; syncTfHighlight(); renderHeadline(); startAnim(); return; }
   const cr=view?{from:view.fromMs,to:view.toMs}:currentRange(state.metal);
   const t=zoomTarget((cr.from+cr.to)/2, z==='in'?0.78:1.28); animateViewTo(t.from,t.to); }));
-const realBtn=document.getElementById('real');
-if(realBtn){
-  if(!META.cpi) realBtn.style.display='none';   // no CPI data → never show wrong numbers
-  else realBtn.addEventListener('click',()=>{
-    cancelViewGlide(); state.real=!state.real; track('real_dollars',true);
-    realBtn.classList.toggle('on',state.real); realBtn.setAttribute('aria-pressed',String(state.real));
-    renderSelector(); renderHeadline(); startAnim(); });
-}
 const cmpBtn=document.getElementById('cmp');
 if(cmpBtn) cmpBtn.addEventListener('click',()=>{
   cancelViewGlide(); dragging=false; dragMoved=false; pinchD=0; t1Mode=null;   // no gesture may straddle a mode switch
@@ -1295,8 +1295,6 @@ document.getElementById('dl-chart').addEventListener('click',exportChart);
   const tf=q.get('tf'); if(tf && (TF_DAYS[tf]||tf==='1D'||tf==='YTD'||tf==='MAX')) state.tf=tf;
   if(q.get('compare')==='1'){ state.compare=true;
     const cb=document.getElementById('cmp'); if(cb){ cb.classList.add('on'); cb.setAttribute('aria-pressed','true'); } }
-  if(q.get('real')==='1' && META.cpi){ state.real=true;
-    const rb=document.getElementById('real'); if(rb){ rb.classList.add('on'); rb.setAttribute('aria-pressed','true'); } }
 }catch(e){} })();
 // copy-link: always points at the site page, which forwards the params into the embed
 const shareBtn=document.getElementById('share');
@@ -1306,7 +1304,6 @@ if(shareBtn) shareBtn.addEventListener('click',async()=>{
   else if(state.metal!=='gold') q.set('metal',state.metal);
   if(state.tf!=='1Y') q.set('tf',state.tf);
   if(state.compare) q.set('compare','1');
-  if(state.real) q.set('real','1');
   const url='https://www.goldrockmetalexchange.com/live-prices/'+(q.toString()?'?'+q.toString():'');
   let ok=false;
   try{ await navigator.clipboard.writeText(url); ok=true; }catch(e){}

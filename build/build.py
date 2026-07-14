@@ -309,11 +309,23 @@ def fetch_cpi():
         out = {}
         for m in re.finditer(r'<strong>\s*((?:19|20)\d{2})\s*</strong>\s*</td>(.*?)</tr>', h, re.S):
             year = int(m.group(1))
-            vals = re.findall(r'<td[^>]*>\s*([\d.]+)\s*</td>', m.group(2))
-            if len(vals) >= 13:
-                out[year] = float(vals[12])       # 13th numeric cell = annual average
-            elif vals:
-                out[year] = float(vals[-1])       # partial current year: latest month
+            # positional by CELL (not by numeric match): after the year come 12 monthly
+            # cells, then the annual average, then two percent-change columns. Counting
+            # only numeric matches previously slid the index onto a percent column when
+            # a month cell held a non-numeric marker (2025 parsed as 2.7 -> 124x prices).
+            cells = re.findall(r'<td[^>]*>\s*([^<]*?)\s*</td>', m.group(2))
+
+            def num(x):
+                try:
+                    return float(x)
+                except ValueError:
+                    return None
+            avg = num(cells[12]) if len(cells) > 12 else None
+            if avg is None:                        # partial current year: latest month, months only
+                months = [v for v in (num(c) for c in cells[:12]) if v is not None]
+                avg = months[-1] if months else None
+            if avg is not None and avg >= 8:       # CPI-U index floor (1913=9.8) — rejects %-columns
+                out[year] = avg
         if len(out) >= 100:
             return out
         log('WARN cpi parse found only %d years' % len(out))

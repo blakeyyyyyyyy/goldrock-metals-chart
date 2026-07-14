@@ -542,7 +542,8 @@ let state = {metal:'gold', tf:'1Y', compare:false, real:false};
 // inflation factor: multiply a historical price by this to express it in today's dollars
 function cpiFactor(ms){ const c=META.cpi; if(!c||!META.cpiBase) return 1;
   let y=new Date(ms).getUTCFullYear(); while(y>1912 && !c[y]) y--;
-  const v=c[y]; return v ? META.cpiBase/v : 1; }
+  const v=c[y]; if(!v) return 1;
+  return Math.min(40, Math.max(0.5, META.cpiBase/v)); }   // 1913 is ~34x — anything outside [0.5,40] is corrupt data
 
 // Lead-capture config. alertsEndpoint = a HubSpot form-submit URL (captures alerts into your CRM).
 // contactEmail = a REAL GoldRock inbox to enable the email fallback. Both empty = phone-only for now.

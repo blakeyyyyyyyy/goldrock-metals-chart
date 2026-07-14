@@ -1,6 +1,6 @@
 {
-  "built_utc": "2026-07-14T17:17:06+00:00",
-  "built_ny": "Jul 14, 2026 1:17 PM ET",
+  "built_utc": "2026-07-14T17:31:12+00:00",
+  "built_ny": "Jul 14, 2026 1:31 PM ET",
   "asof": {
     "gold": "2026-07-14",
     "silver": "2026-07-14",
@@ -12,16 +12,16 @@
     "platinum": "1969-01-02"
   },
   "live": {
-    "gold": 4056.2,
-    "silver": 58.75,
-    "platinum": 1634.0
+    "gold": 4063.7,
+    "silver": 58.93,
+    "platinum": 1637.0
   },
   "points": {
     "gold": 8015,
     "silver": 7948,
     "platinum": 7187
   },
-  "note": "Gold is at $4,056.20, down 0.0% from the prior close \u2014 its 3rd consecutive decline.",
+  "note": "Gold is at $4,063.70, up 0.2% from the prior close.",
   "cpi": {
     "1913": 9.9,
     "1914": 10.0,
@@ -135,7 +135,7 @@
     "2022": 292.655,
     "2023": 304.702,
     "2024": 313.689,
-    "2025": 2.7,
+    "2025": 321.943,
     "2026": 333.952
   },
   "cpiBase": 333.952

@@ -4,42 +4,78 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Live Gold, Silver &amp; Platinum Spot Prices &amp; Charts — GoldRock Metal Exchange</title>
-<meta name="description" content="Live and historic spot prices for gold, silver and platinum — a century of history, updated in real time. GoldRock Metal Exchange.">
+<meta name="description" content="Live and historic spot prices for gold, silver and platinum — a century of history, with live spot updates. GoldRock Metal Exchange.">
 <meta name="robots" content="noindex, nofollow">
-<link rel="canonical" href="https://www.goldrockmetalexchange.com/prices">
+<link rel="canonical" href="https://www.goldrockmetalexchange.com/live-prices/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="GoldRock Metal Exchange">
 <meta property="og:title" content="Live Gold, Silver &amp; Platinum Spot Prices &amp; Charts — GoldRock">
-<meta property="og:description" content="Live gold, silver and platinum spot prices with a century of history, updated in real time. GoldRock Metal Exchange.">
-<meta property="og:url" content="https://www.goldrockmetalexchange.com/prices">
+<meta property="og:description" content="Live gold, silver and platinum spot prices with a century of history and live spot updates. GoldRock Metal Exchange.">
+<meta property="og:url" content="https://www.goldrockmetalexchange.com/live-prices/">
 <meta property="og:image" content="https://www.goldrockmetalexchange.com/wp-content/uploads/2026/04/goldrock-logo.webp">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Live Gold, Silver &amp; Platinum Spot Prices &amp; Charts — GoldRock">
-<meta name="twitter:description" content="Live &amp; historic gold, silver &amp; platinum spot prices — a century of history, in real time.">
+<meta name="twitter:description" content="Live gold, silver &amp; platinum spot prices, with a century of history.">
 <meta name="theme-color" content="#0a0a0c">
-<link rel="icon" type="image/svg+xml" href="__LOGO_URI__">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"GoldRock Metal Exchange","url":"https://www.goldrockmetalexchange.com","telephone":"+1-888-859-0978","description":"Family-run precious-metals brokerage — physical gold, silver, platinum and Precious-Metals IRAs."}</script>
+<link rel="icon" id="favicon">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"GoldRock Metal Exchange","url":"https://www.goldrockmetalexchange.com","telephone":"+1-888-859-0978","description":"Family-run precious-metals dealer — physical gold, silver, platinum and Precious-Metals IRAs."}</script>
 <style>
   :root{
+    color-scheme:dark; accent-color:#e3ba4e;
+    --ease:cubic-bezier(.23,1,.32,1); --dur:.24s;
     --bg:#0a0a0c; --bg2:#060608; --panel:#111014;
     --line:rgba(227,186,78,.14); --line-soft:rgba(227,186,78,.06);
     --gold:#e3ba4e; --gold-deep:#b8932f; --gold-bright:#ffe6a3;
     --ivory:#f6f3ec; --muted:#b7af9c; --muted2:#8b8474;
     --up:#5cc98a; --down:#e5735f;
-    --gold-accent:#efc65c; --silver-accent:#dbe2ec; --plat-accent:#aecbdd;
+    --gold-accent:#efc65c; --silver-accent:#e6eaee; --plat-accent:#7fadd6;
     --serif:"Didot","Hoefler Text","Playfair Display",Georgia,"Times New Roman",serif;
     --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     --hero:url(__HERO_URI__);   /* embedded once, reused by stage + footer */
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
-  body{background:var(--bg2);color:var(--ivory);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  ::selection{background:rgba(227,186,78,.28);color:#fff6de}
+  button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:1.5px solid rgba(227,186,78,.65);outline-offset:2px}
+  body{background:var(--bg2);color:var(--ivory);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden;animation:pagein .55s ease-out;-webkit-tap-highlight-color:transparent}
+  @keyframes pagein{from{opacity:0}to{opacity:1}}
+  html{scrollbar-color:#3a3324 #0a0a0c;scrollbar-width:thin}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:#0a0a0c}
+  ::-webkit-scrollbar-thumb{background:#2e2919;border-radius:5px;border:2px solid #0a0a0c}
+  ::-webkit-scrollbar-thumb:hover{background:#4a4230}
   .tnum{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
   a{color:inherit}
   .up{color:var(--up)} .down{color:var(--down)}
 
+  /* ================= SITE HEADER (standalone mode) ================= */
+  .sitehead{position:sticky;top:0;z-index:70;display:flex;align-items:center;justify-content:space-between;gap:20px;
+    padding:12px clamp(18px,3.5vw,44px);background:rgba(6,6,8,.94);
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(227,186,78,.22)}
+  .sitehead[hidden]{display:none}
+  .sh-brand{display:flex;align-items:center;gap:12px;text-decoration:none;flex:0 0 auto}
+  .sh-brand img{width:46px;height:46px;filter:drop-shadow(0 1px 8px rgba(227,186,78,.35))}
+  .sh-name{font-family:var(--serif);font-size:21px;color:var(--ivory);line-height:1}
+  .sh-name small{display:block;font-family:var(--sans);font-size:8.5px;font-weight:600;letter-spacing:.34em;
+    text-transform:uppercase;color:var(--gold);margin-top:4px}
+  .sh-nav{display:flex;gap:clamp(12px,2.4vw,30px);flex-wrap:wrap;justify-content:center}
+  .sh-nav a{color:var(--muted);text-decoration:none;font-size:12px;font-weight:600;letter-spacing:.12em;
+    text-transform:uppercase;transition:color var(--dur) var(--ease);padding:6px 2px}
+  .sh-nav a:hover{color:var(--gold-bright)}
+  .sh-nav a.sh-now{color:var(--gold-bright);border-bottom:1px solid rgba(227,186,78,.55)}
+  .sh-call{text-align:right;text-decoration:none;color:var(--gold-bright);font-family:var(--serif);font-size:17px;
+    line-height:1.1;flex:0 0 auto}
+  .sh-call small{display:block;font-family:var(--sans);font-size:10px;color:var(--muted);letter-spacing:.05em;margin-bottom:2px}
+  @media(max-width:760px){
+    .sitehead{flex-wrap:wrap;justify-content:center;row-gap:6px}
+    .sh-nav{order:3;width:100%}
+    .sh-call small{display:none}
+  }
+
   /* ================= STAGE (the slate + the living chart, as one) ================= */
   .stage{position:relative;width:100%;min-height:100vh;overflow:hidden;display:flex;flex-direction:column}
+  @supports (min-height:100dvh){.stage{min-height:100dvh}}   /* iOS address-bar-safe */
   .stage-bg{position:absolute;inset:0;background:#060608 var(--hero) center right/cover no-repeat;z-index:0}
   .stage-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;
     background:
@@ -56,10 +92,20 @@
   .topbar .r a{color:var(--gold-bright);text-decoration:none;font-family:var(--serif);font-size:17px;display:block;margin-top:1px}
 
   .stage-head{margin-top:clamp(26px,7vh,80px)}
-  .wordmark{font-family:var(--serif);font-weight:500;color:var(--ivory);line-height:.9;letter-spacing:-.005em;
-    font-size:clamp(52px,8.6vw,124px);text-shadow:0 6px 44px rgba(0,0,0,.7)}
+  .wordmark{font-family:var(--serif);font-weight:500;line-height:.9;letter-spacing:-.005em;
+    font-size:clamp(52px,8.6vw,124px);
+    background:linear-gradient(100deg,#f6f3ec 40%,#ffe9ae 50%,#f6f3ec 60%);background-size:220% 100%;
+    -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+    filter:drop-shadow(0 6px 30px rgba(0,0,0,.65));animation:wmshine 7s ease-in-out .8s 2}   /* greets, then rests — perpetual glitter reads casino */
+  @keyframes wmshine{0%{background-position:120% 0}55%{background-position:-80% 0}100%{background-position:-80% 0}}
   .tagline{margin-top:clamp(10px,1.8vh,20px);font-size:clamp(17px,2.1vw,27px);font-weight:400;color:#e9e3d6;
     text-shadow:0 2px 22px rgba(0,0,0,.8)}
+  .marketnote{display:none!important;margin-top:10px;font-size:13.5px;color:var(--muted);letter-spacing:.01em;text-shadow:0 1px 12px rgba(0,0,0,.8);min-height:0}
+  .marketnote:empty{display:none}
+  .milestone{margin-top:12px;text-align:center;font-size:12.5px;letter-spacing:.06em;color:var(--gold-bright);
+    text-shadow:0 1px 10px rgba(0,0,0,.8)}
+  .milestone:empty{display:none}
+  .milestone span{color:var(--gold);margin-right:7px}
 
   /* control row */
   .controls{margin-top:clamp(20px,3.4vh,40px);display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap}
@@ -93,8 +139,9 @@
     color:var(--muted);cursor:pointer;font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.06em;
     padding:7px 14px;border-radius:9px;transition:all .16s;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
   .tframes button:hover{color:var(--ivory);border-color:rgba(227,186,78,.4)}
-  .tframes button.on{color:#160f02;background:linear-gradient(180deg,var(--gold-bright),var(--gold));
-    border-color:var(--gold);box-shadow:0 3px 14px rgba(227,186,78,.35)}
+  /* quiet active state — solid gold is reserved for the money CTAs */
+  .tframes button.on{color:var(--ivory);background:linear-gradient(180deg,rgba(227,186,78,.22),rgba(227,186,78,.06));
+    border-color:rgba(227,186,78,.36)}
   .zoom{display:flex;gap:4px;margin-left:auto;background:rgba(8,8,10,.42);border:1px solid var(--line);border-radius:9px;padding:3px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
   .zoom button{appearance:none;border:0;background:transparent;color:var(--muted);cursor:pointer;font-family:var(--sans);
     font-weight:700;font-size:14px;line-height:1;min-width:30px;padding:6px 9px;border-radius:7px;transition:all .16s}
@@ -111,12 +158,17 @@
   .iconbtn{appearance:none;border:1px solid var(--line);background:rgba(8,8,10,.42);color:var(--muted);cursor:pointer;
     font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.06em;padding:8px 13px;border-radius:9px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:all .16s}
   .iconbtn:hover{color:var(--gold-bright);border-color:rgba(227,186,78,.4)}
+  .iconbtn.on{color:var(--ivory);background:linear-gradient(180deg,rgba(227,186,78,.22),rgba(227,186,78,.06));border-color:rgba(227,186,78,.36)}
+  .iconbtn.on:hover{color:var(--gold-bright)}
+  .mtab,.tframes button,.zoom button,.iconbtn,.perfchip,.daterange #dr-go{transition:all var(--dur) var(--ease)}
+  .big .cur{font-size:.55em;vertical-align:.42em;color:var(--muted);margin-right:1px}
+  .big .cents{font-size:.55em;color:var(--muted)}
   .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
   /* the chart fills the rest of the stage */
   .chartwrap{position:relative;flex:1;min-height:clamp(300px,42vh,520px);margin-top:14px;touch-action:pan-y;border-radius:12px;
     background:radial-gradient(125% 95% at 48% 62%, rgba(5,5,7,.62), rgba(5,5,7,.22) 62%, rgba(5,5,7,0) 100%);transition:box-shadow .25s}
-  .chartwrap.active,.chartwrap:focus-within{box-shadow:inset 0 0 0 1px rgba(227,186,78,.28), 0 0 40px -12px rgba(227,186,78,.25)}
+  .chartwrap.active,.chartwrap:focus-within{box-shadow:inset 0 0 0 1px var(--acc-soft,rgba(227,186,78,.28)), 0 0 40px -12px var(--acc-glow,rgba(227,186,78,.25))}
   #chart{outline:none}
   .chart-lock{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:6;pointer-events:none;
     font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--muted);background:rgba(8,8,10,.62);border:1px solid var(--line);
@@ -125,15 +177,50 @@
   .chartwrap.active .chart-lock{opacity:0}
   #chart{position:absolute;inset:0;width:100%;height:100%;display:block}
   .tip{position:absolute;pointer-events:none;opacity:0;transition:opacity .12s;z-index:5;
-    background:rgba(9,9,11,.92);border:1px solid rgba(227,186,78,.4);border-radius:10px;
+    background:rgba(9,9,11,.92);border:1px solid var(--acc-soft,rgba(227,186,78,.4));border-radius:10px;
     padding:9px 12px;-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);box-shadow:0 10px 30px rgba(0,0,0,.6);white-space:nowrap}
+  .tip::before{content:"";position:absolute;top:0;left:10%;right:10%;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(255,230,163,.55),transparent)}
   .tip .tdate{font-size:10.5px;color:var(--muted);letter-spacing:.06em;margin-bottom:3px}
   .tip .tprice{font-family:var(--serif);font-size:18px;color:var(--gold-bright)}
+  .tip .tsub{font-family:var(--sans);font-size:11px;margin-top:3px;letter-spacing:.02em}
+  .tip .trow{display:flex;justify-content:space-between;gap:16px;font-family:var(--sans);font-size:12.5px;margin-top:2px}
+  .tip .trow .tm{font-weight:700;letter-spacing:.06em;font-size:10px;text-transform:uppercase;align-self:center}
+  /* performance shortcut chips under the stat bar */
+  .perfrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding:12px 0 4px}
+  .perfchip{appearance:none;border:1px solid var(--line);background:rgba(8,8,10,.42);color:var(--muted);cursor:pointer;
+    font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.05em;padding:6px 11px;border-radius:8px;
+    -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:all .16s}
+  .perfchip b{margin-left:7px;font-weight:700}
+  .perfchip:hover{border-color:rgba(227,186,78,.4);color:var(--ivory)}
+  /* My Metals — private holdings valuator */
+  .holdings{text-align:center;padding:8px 0 4px}
+  .hold-toggle{appearance:none;border:0;background:transparent;color:var(--muted);cursor:pointer;font-family:var(--sans);
+    font-size:11.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:8px 12px;transition:color var(--dur) var(--ease)}
+  .hold-toggle:hover{color:var(--gold-bright)}
+  .hold-card{max-width:640px;margin:8px auto 0;padding:18px;border:1px solid var(--line);border-radius:12px;
+    background:linear-gradient(180deg,rgba(9,9,11,.72),rgba(9,9,11,.9))}
+  .hold-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .hold-row label{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+  .hold-row input{width:92px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:8px;
+    color:var(--ivory);font-family:var(--sans);font-size:14px;padding:8px 10px}
+  .hold-row input:focus{outline:none;border-color:rgba(227,186,78,.55)}
+  .hold-row span{color:var(--muted2);font-size:11px}
+  .hold-out{margin-top:14px;font-family:var(--serif);font-size:24px;color:#fdfaf3;min-height:28px}
+  .hold-out small{font-family:var(--sans);font-size:12.5px;margin-left:8px;font-weight:600}
+  .hold-cta{margin-top:8px;font-size:13px;color:var(--muted);min-height:16px}
+  .hold-cta a{color:var(--gold-bright);text-decoration:none;border-bottom:1px solid rgba(227,186,78,.35)}
+  .hold-cta a:hover{color:#fff}
+  .hold-note{margin-top:9px;font-size:11px;color:var(--muted2)}
 
   /* stat bar sits at the base of the stage, over the stone */
-  .statbar{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;padding:18px 20px 22px;margin-top:8px;
+  .statbar{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:12px;padding:18px 20px 22px;margin-top:8px;
     border-top:1px solid var(--line);border-radius:0 0 12px 12px;
     background:linear-gradient(180deg, rgba(9,9,11,.72), rgba(9,9,11,.9))}
+  .stat{position:relative;padding-left:14px;transition:transform .18s}
+  .stat::before{content:"";position:absolute;left:0;top:4px;bottom:4px;width:1px;
+    background:linear-gradient(180deg,transparent,rgba(227,186,78,.30),transparent)}
+  .stat:hover{transform:translateY(-2px)}
   .stat .k{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#d8d0be;margin-bottom:6px;
     text-shadow:0 1px 3px #000}
   .stat .v{font-family:var(--serif);font-size:19px;color:#fdfaf3;text-shadow:0 1px 4px #000}
@@ -145,6 +232,9 @@
   .below-scrim{position:absolute;inset:0;background:linear-gradient(180deg, var(--bg2) 0%, rgba(6,6,8,.55) 32%, rgba(6,6,8,.86) 100%)}
   .below-inner{position:relative;z-index:2;max-width:1120px;margin:0 auto;padding:0 clamp(20px,4vw,54px)}
   .alerts{padding:clamp(44px,7vh,80px) 0 clamp(10px,2vh,20px);text-align:center}
+  .orn{display:flex;align-items:center;gap:16px;justify-content:center;color:var(--gold);font-size:8px;margin-bottom:20px;opacity:.85}
+  .orn span{display:block;width:min(140px,26vw);height:1px;background:linear-gradient(90deg,transparent,rgba(227,186,78,.55))}
+  .orn span:last-child{transform:scaleX(-1)}
   .alerts-head h2{font-family:var(--serif);font-weight:500;font-size:clamp(24px,3.4vw,38px);color:var(--ivory);line-height:1.15;margin-top:12px}
   .alerts-head p{max-width:560px;margin:14px auto 0;color:var(--muted);font-size:14px;line-height:1.6}
   .alerts-form{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:stretch;margin-top:26px}
@@ -156,6 +246,15 @@
   .al-input input{border:0;background:transparent;padding:13px 4px;width:78px;color:var(--ivory)}
   .al-input select{border:0;background:transparent;padding:13px 2px;color:var(--muted);font-size:13px;cursor:pointer}
   .alerts-form input[type=email]{min-width:200px}
+  .alerts-form input[type=tel]{min-width:150px}
+  .al-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+  .al-chip{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--ivory);
+    background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:20px;padding:7px 12px}
+  .al-chip b{color:var(--gold-bright);font-weight:600}
+  .al-chip button{appearance:none;border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px}
+  .al-chip button:hover{color:var(--down)}
+  .al-chip.hit{border-color:rgba(92,201,138,.6);box-shadow:0 0 14px -4px rgba(92,201,138,.5)}
+  .al-chip.hit b{color:var(--up)}
   .alerts-form .btn-gold{border:0;cursor:pointer;padding:13px 26px}
   .alerts-feedback{margin-top:18px;font-size:14px;color:var(--gold-bright);min-height:20px;letter-spacing:.01em;
     text-shadow:0 1px 8px rgba(0,0,0,.6)}
@@ -173,7 +272,9 @@
   .cta-actions{margin-top:30px;display:flex;gap:22px;justify-content:center;align-items:center;flex-wrap:wrap}
   .btn{display:inline-block;text-decoration:none;font-weight:700;letter-spacing:.03em;border-radius:11px;
     padding:15px 32px;font-size:15px;text-align:center;white-space:nowrap;transition:transform .15s, box-shadow .15s}
-  .btn-gold{background:linear-gradient(180deg,var(--gold-bright),var(--gold-deep));color:#1a1204;box-shadow:0 8px 26px rgba(227,186,78,.32)}
+  .btn-gold{background:linear-gradient(180deg,var(--gold-bright),var(--gold-deep));color:#1a1204;box-shadow:0 8px 26px rgba(227,186,78,.32);position:relative;overflow:hidden}
+  .btn-gold::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 32%,rgba(255,255,255,.34) 50%,transparent 68%);transform:translateX(-130%);transition:transform .55s ease}
+  .btn-gold:hover::after{transform:translateX(130%)}
   .btn-gold:hover{transform:translateY(-2px);box-shadow:0 12px 34px rgba(227,186,78,.46)}
   .btn-line{color:var(--gold-bright);text-decoration:none;font-size:13.5px;letter-spacing:.03em;
     border-bottom:1px solid rgba(227,186,78,.4);padding-bottom:3px;transition:color .15s,border-color .15s}
@@ -204,6 +305,19 @@
     .callfab span{display:none}
     /* 16px+ stops iOS Safari from auto-zooming the (host) page when a field is focused */
     .alerts-form input,.alerts-form select,.al-input input,.al-input select,.daterange input[type=date]{font-size:16px}
+    .perfrow{gap:6px}
+    .perfchip{padding:5px 8px;font-size:10px}
+  }
+  @media(max-width:520px){
+    /* the three metal tabs must always share ONE row on phones */
+    .metaltabs{display:flex;width:100%;gap:3px;padding:4px}
+    .mtab{flex:1 1 0;min-width:0;justify-content:center;gap:5px;padding:7px 4px;
+      font-size:10px;letter-spacing:.02em;white-space:nowrap}
+    .mtab .mp{font-size:10.5px}
+    .mtab .sw{width:8px;height:8px}
+  }
+  @media(max-width:359px){
+    .mtab .mp{display:none}   /* ultra-narrow: keep the names, drop the inline prices */
   }
   @media (prefers-reduced-motion:reduce){
     *{animation:none!important;transition:none!important}
@@ -213,19 +327,38 @@
 </head>
 <body>
 
+  <!-- site-matching header: shown standalone (or with ?header=1) so the chart works
+       as a complete page; hidden when embedded under the site's own header -->
+  <header class="sitehead" id="sitehead" hidden>
+    <a class="sh-brand" href="https://www.goldrockmetalexchange.com/">
+      <img id="seal-b" src="data:," alt="GoldRock Metal Exchange">
+      <span class="sh-name">GoldRock<small>Metal Exchange</small></span>
+    </a>
+    <nav class="sh-nav" aria-label="Site">
+      <a href="https://www.goldrockmetalexchange.com/">Home</a>
+      <a href="https://www.goldrockmetalexchange.com/live-prices/" class="sh-now" aria-current="page">Charts</a>
+      <a href="https://www.goldrockmetalexchange.com/shop/">Products</a>
+      <a href="https://www.goldrockmetalexchange.com/ira/">IRA</a>
+      <a href="https://www.goldrockmetalexchange.com/about-us/">About Us</a>
+      <a href="https://www.goldrockmetalexchange.com/contact/">Contact</a>
+    </nav>
+    <a class="sh-call" href="tel:+18888590978"><small>Speak with a specialist</small>(888) 859-0978</a>
+  </header>
+
   <section class="stage">
     <div class="stage-bg"></div>
     <div class="stage-scrim"></div>
     <div class="stage-inner">
 
       <div class="topbar">
-        <div class="l"><img class="seal" src="__LOGO_URI__" alt="GoldRock"><span class="kx">Metal Exchange</span></div>
+        <div class="l"><img class="seal" id="seal-a" src="data:," alt="GoldRock"><span class="kx">Metal Exchange</span></div>
         <div class="r">Speak with a specialist<a href="tel:+18888590978">(888)&nbsp;859-0978</a></div>
       </div>
 
       <div class="stage-head">
         <h1 class="wordmark">GoldRock</h1>
         <p class="tagline">Live gold, silver &amp; platinum spot prices — charted back a century.</p>
+        <p class="marketnote" id="marketnote"></p>
       </div>
 
       <div class="controls">
@@ -233,6 +366,7 @@
           <div class="metaltabs" id="metaltabs"></div>
           <div class="ctl-row">
             <div class="tframes" id="tframes">
+              <button data-tf="1D" title="Today — live quotes recorded while you watch">1D</button>
               <button data-tf="1W">1W</button>
               <button data-tf="1M">1M</button>
               <button data-tf="6M">6M</button>
@@ -242,8 +376,8 @@
               <button data-tf="10Y">10Y</button>
               <button data-tf="MAX">MAX</button>
             </div>
-            <div class="zoom" id="zoom" title="Zoom — or scroll / drag the chart, double-click to reset">
-              <button data-z="out" aria-label="Zoom out">–</button>
+            <div class="zoom" id="zoom" title="Zoom — or scroll or drag the chart; double-click resets">
+              <button data-z="out" aria-label="Zoom out">−</button>
               <button data-z="in" aria-label="Zoom in">+</button>
               <button data-z="reset" aria-label="Reset zoom">Reset</button>
             </div>
@@ -253,16 +387,20 @@
               <input type="date" id="dr-to" aria-label="To date">
               <button id="dr-go">Go</button>
             </div>
+            <button class="iconbtn" id="cmp" title="Overlay all three metals — % change over the current period" aria-pressed="false">⇄ Compare</button>
+            <button class="iconbtn" id="real" title="Adjust the whole history for inflation — every price in today's dollars" aria-pressed="false">⟲ Real $</button>
             <button class="iconbtn" id="dl-chart" title="Download this chart as an image" aria-label="Download chart image">⤓ Save</button>
+            <button class="iconbtn" id="share" title="Copy a link that opens the chart exactly like this" aria-label="Copy link to this view">⧉ Link</button>
           </div>
         </div>
         <div class="readout">
           <div class="livepill" id="livepill" title="Live spot price status"><span class="dot"></span><span id="livepill-txt">LIVE</span></div>
           <div class="big tnum" id="hl-price">—</div>
-          <div class="sub tnum"><span id="hl-delta">—</span><span class="rl" id="hl-range"></span></div>
+          <div class="sub tnum"><span id="hl-delta">—</span><span class="rl" id="hl-range"></span><span class="rl" id="hl-today" style="display:none"></span></div>
         </div>
       </div>
 
+      <div class="milestone" id="milestone" aria-live="polite"></div>
       <div class="chartwrap" id="chartwrap">
         <canvas id="chart" tabindex="0" role="application" aria-roledescription="interactive price chart" aria-label="Interactive price chart. Focus the chart and use the left and right arrow keys to read each day's value; plus and minus zoom; Escape resets." aria-describedby="a11y-summary"></canvas>
         <div class="chart-lock" id="chartlock" aria-hidden="true"><span>◆</span> Click the chart to zoom &amp; pan</div>
@@ -270,6 +408,21 @@
       </div>
 
       <div class="statbar" id="stats"></div>
+      <div class="perfrow" id="perf" role="group" aria-label="Performance since — click to set the timeframe"></div>
+      <div class="holdings">
+        <button class="hold-toggle" id="hold-toggle" type="button" aria-expanded="false" aria-controls="hold-card">◈ Value my metals</button>
+        <div class="hold-card" id="hold-card" hidden>
+          <div class="hold-row">
+            <label>Gold <input id="h-gold" type="number" min="0" step="any" inputmode="decimal" placeholder="0" aria-label="Gold ounces"><span>oz</span></label>
+            <label>Silver <input id="h-silver" type="number" min="0" step="any" inputmode="decimal" placeholder="0" aria-label="Silver ounces"><span>oz</span></label>
+            <label>Platinum <input id="h-platinum" type="number" min="0" step="any" inputmode="decimal" placeholder="0" aria-label="Platinum ounces"><span>oz</span></label>
+            <label>Total invested <input id="h-cost" type="number" min="0" step="any" inputmode="decimal" placeholder="optional" aria-label="Total amount invested in dollars"><span>$</span></label>
+          </div>
+          <div class="hold-out tnum" id="hold-out" aria-live="polite"></div>
+          <div class="hold-cta" id="hold-cta"></div>
+          <div class="hold-note">Saved on this device only — never sent anywhere.</div>
+        </div>
+      </div>
       <p class="sr-only" id="a11y-summary"></p>
       <p class="sr-only" id="a11y-live" role="status" aria-live="polite"></p>
     </div>
@@ -282,27 +435,30 @@
 
       <div class="alerts" id="alerts">
         <div class="alerts-head">
+          <div class="orn" aria-hidden="true"><span></span>◆<span></span></div>
           <div class="eyebrow">Spot price alerts</div>
-          <h2>Get notified the moment the spot price hits your target.</h2>
-          <p>Set a target and we’ll let you know the instant gold, silver, or platinum reaches it.</p>
+          <h2>Set your target. We watch the spot price.</h2>
+          <p>Pick a target and this page watches live spot for you while it’s open. Add your number and a GoldRock specialist can confirm your alert personally.</p>
         </div>
         <form class="alerts-form" id="alerts-form">
           <span class="al-lead">Alert me when</span>
           <select id="al-metal" aria-label="Metal"><option value="gold">Gold</option><option value="silver">Silver</option><option value="platinum">Platinum</option></select>
           <select id="al-dir" aria-label="Direction"><option value="above">rises</option><option value="below">falls</option></select>
-          <span class="al-input"><input id="al-value" type="number" step="any" inputmode="decimal" value="5" placeholder="5" aria-label="Amount"><select id="al-unit" aria-label="Percent or spot price"><option value="pct">%</option><option value="usd">to $ spot price</option></select></span>
+          <span class="al-input"><input id="al-value" type="number" step="any" inputmode="decimal" value="5" placeholder="5" aria-label="Amount"><select id="al-unit" aria-label="Percent or dollar target"><option value="pct">%</option><option value="usd">$ target</option></select></span>
           <input id="al-email" type="email" placeholder="you@email.com" aria-label="Email address" required>
-          <button type="submit" class="btn btn-gold">Set my alert</button>
+          <input id="al-phone" type="tel" inputmode="tel" placeholder="phone (optional)" aria-label="Phone number (optional)">
+          <button type="submit" class="btn btn-gold">Watch this price for me</button>
         </form>
         <div class="alerts-feedback" id="alerts-feedback" aria-live="polite"></div>
         <div class="alerts-msg" id="alerts-msg" role="status" aria-live="polite"></div>
+        <div class="al-chips" id="al-chips" aria-label="Your saved alerts"></div>
         <p class="alerts-alt">Prefer to talk it through? <a href="tel:+18888590978">Call (888)&nbsp;859-0978</a> and a specialist will set it up with you.</p>
       </div>
 
       <div class="cta-lux">
-        <div class="eyebrow">Speak with a specialist</div>
+        <div class="eyebrow">Work with GoldRock</div>
         <h2>Own the metal, <em>not just the chart.</em></h2>
-        <p>Work directly with a GoldRock specialist on physical gold, silver, and platinum — or a Precious-Metals IRA. Clear guidance, fees disclosed up front, and insured, fully documented delivery.</p>
+        <p>Work directly with a GoldRock specialist on physical gold, silver, and platinum — or a Precious-Metals IRA. Clear guidance and insured, fully documented delivery.</p>
         <div class="cta-actions">
           <a class="btn btn-gold" href="tel:+18888590978">Call (888)&nbsp;859-0978</a>
           <a class="btn-line" href="#alerts">Set a price alert</a>
@@ -349,6 +505,10 @@
 })();
 const DATA = /*__DATA_JSON__*/0;
 const META = /*__META_JSON__*/0;
+// the crest is embedded ONCE and distributed here — never three copies of a 150KB image
+const LOGO_URI='__LOGO_URI__';
+(function(){ const f=document.getElementById('favicon'); if(f){ f.type='image/png'; f.href=LOGO_URI; }
+  for(const id of ['seal-a','seal-b']){ const el=document.getElementById(id); if(el) el.src=LOGO_URI; } })();
 if (!DATA || typeof DATA !== 'object' || !DATA.gold) {
   document.body.innerHTML =
     '<div style="max-width:560px;margin:16vh auto;padding:32px;text-align:center;font-family:Georgia,serif;color:#f6f3ec">'
@@ -360,15 +520,29 @@ if (!DATA || typeof DATA !== 'object' || !DATA.gold) {
 
 const DAY = 86400000;
 const REDUCE = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+// first-party analytics: the chart only tells its OWN parent page what happened —
+// no cookies, no third parties, nothing leaves the GoldRock site
+const sentEv={};
+function track(name,once){ if(once&&sentEv[name]) return; sentEv[name]=1;
+  try{ if(window.self!==window.top) parent.postMessage({goldrock:'event',name:String(name)},'*'); }catch(e){} }
 function getVar(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
 const METALS = {
   gold:     {label:'Gold',     sym:'XAU', acc:getVar('--gold-accent'),   core:'#fff3d2', decimals:2},
   silver:   {label:'Silver',   sym:'XAG', acc:getVar('--silver-accent'), core:'#ffffff', decimals:2},
-  platinum: {label:'Platinum', sym:'XPT', acc:getVar('--plat-accent'),   core:'#f0f8ff', decimals:2},
+  platinum: {label:'Platinum', sym:'XPT', acc:getVar('--plat-accent'),   core:'#cfe6ff', decimals:2},
+  // virtual series: ounces of silver per ounce of gold — unitless (unit:'x')
+  ratio:    {label:'Gold : Silver Ratio', sym:'G/S', acc:'#e8e0cc', core:'#ffffff', decimals:1, unit:'x'},
 };
+function isX(){ const m=METALS[state.metal]; return !!(m&&m.unit==='x'); }   // unitless mode (the ratio)
+function fmtVal(v,dec){ return isX() ? (v==null||isNaN(v)?'—':(+v).toFixed(dec)) : fmtMoney(v,dec); }
+function fmtValRich(v,dec){ return isX() ? (v==null||isNaN(v)?'—':(+v).toFixed(dec)) : fmtMoneyRich(v,dec); }
 const TF_DAYS = {'1W':7,'1M':30,'6M':182,'1Y':365,'5Y':1825,'10Y':3650};
 const liveSpot = Object.assign({}, META.live);
-let state = {metal:'gold', tf:'1Y'};
+let state = {metal:'gold', tf:'1Y', compare:false, real:false};
+// inflation factor: multiply a historical price by this to express it in today's dollars
+function cpiFactor(ms){ const c=META.cpi; if(!c||!META.cpiBase) return 1;
+  let y=new Date(ms).getUTCFullYear(); while(y>1912 && !c[y]) y--;
+  const v=c[y]; return v ? META.cpiBase/v : 1; }
 
 // Lead-capture config. alertsEndpoint = a HubSpot form-submit URL (captures alerts into your CRM).
 // contactEmail = a REAL GoldRock inbox to enable the email fallback. Both empty = phone-only for now.
@@ -376,19 +550,90 @@ const CONFIG = { alertsEndpoint:'', contactEmail:'contact@goldrockmetalexchange.
 
 // key market events, marked on the long-range views ("the record beneath the price")
 const ANNOS=[['1971-08-15','Gold standard ends'],['1980-01-21','1980 peak'],['2008-09-15','Financial crisis'],
-  ['2011-09-06','2011 high'],['2020-08-06','COVID record'],['2026-01-26','2026 surge']]
+  ['2011-09-06','2011 peak'],['2020-08-06','COVID record'],['2026-01-26','2026 surge']]
   .map(a=>[Date.parse(a[0]+'T00:00:00Z'),a[1]]);
 
+let ratioCache=null;
+function ratioSeries(){   // gold/silver aligned on shared trading days, live tip included
+  if(ratioCache && ratioCache.g===liveSpot.gold && ratioCache.s===liveSpot.silver) return ratioCache.out;
+  const sm=new Map(DATA.silver);
+  const out=[];
+  for(const p of DATA.gold){ const sv=sm.get(p[0]); if(sv) out.push([p[0]*DAY, p[1]/sv]); }
+  if(liveSpot.gold!=null && liveSpot.silver && out.length)
+    out[out.length-1]=[out[out.length-1][0], liveSpot.gold/liveSpot.silver];
+  ratioCache={g:liveSpot.gold, s:liveSpot.silver, out};
+  return out;
+}
+function ratioPercentile(){   // how expensive is silver vs gold, against ALL recorded days
+  const s=ratioSeries(); if(!s.length) return null;
+  const cur=s[s.length-1][1]; let below=0;
+  for(const p of s) if(p[1]<cur) below++;
+  return Math.round(below/s.length*100);
+}
 function series(metal){
+  if(metal==='ratio') return ratioSeries();   // unitless — inflation cancels out
   const s = DATA[metal].map(p => [p[0]*DAY, p[1]]);
   const lv = liveSpot[metal];
   if (lv != null && s.length) s[s.length-1] = [s[s.length-1][0], lv];
+  if(state.real) return s.map(p=>[p[0], p[1]*cpiFactor(p[0])]);
   return s;
 }
+// --- 1D intraday: live quotes recorded into a rolling on-device buffer while the page
+// is open, anchored to the last real close so the line is honest from the first tick ---
+let idbCache=null;                       // parsed once, reused — render must never re-parse 100KB per frame
+function idbLoad(){
+  if(idbCache) return idbCache;
+  try{ const v=JSON.parse(localStorage.getItem('gr-1d')||'{}');
+    idbCache=(v && typeof v==='object' && !Array.isArray(v)) ? v : {};
+  }catch(e){ idbCache={}; }
+  return idbCache;
+}
+function idbPush(){
+  try{
+    const b=idbLoad(), now=Date.now(), cut=now-48*3600000;
+    for(const k of ['gold','silver','platinum']){ const v=liveSpot[k]; if(v==null) continue;
+      const arr=(Array.isArray(b[k])?b[k]:[]).filter(p=>p[0]>=cut);
+      if(!arr.length || now-arr[arr.length-1][0]>45000) arr.push([now,v]);
+      b[k]=arr.slice(-1500);
+    }
+    localStorage.setItem('gr-1d',JSON.stringify(b)); idbCache=b;
+  }catch(e){}
+}
+function anchorClose(metal){          // last REAL close strictly before today (UTC) — raw data, not the live-overwritten tip
+  if(metal==='ratio'){ const g=anchorClose('gold'), s=anchorClose('silver'); return [Math.max(g[0],s[0]), g[1]/s[1]]; }
+  const raw=DATA[metal], todayOff=Math.floor(Date.now()/DAY);
+  let ai=raw.length-1; while(ai>0 && raw[ai][0]>=todayOff) ai--;
+  return raw[ai];
+}
+function intradaySeries(metal){
+  if(metal==='ratio'){   // zip the gold and silver buffers (same tick timestamps)
+    const g=intradaySeries('gold'), sv=intradaySeries('silver');
+    const sm=new Map(sv); const out=[];
+    for(const p of g){ const s2=sm.get(p[0]); if(s2) out.push([p[0], p[1]/s2]); }
+    return out.length>=2 ? out : series('ratio').slice(-2);
+  }
+  const a=anchorClose(metal);
+  // anchor at the END of the close's day, so the buffer's own ticks from that day are
+  // dropped by the p[0]>anchor filter — otherwise the close would plot BEFORE the ticks
+  // that produced it and draw a price move that never happened
+  const out=[[(a[0]+1)*DAY, a[1]]];
+  for(const p of (idbLoad()[metal]||[])) if(p[0]>out[out.length-1][0]) out.push(p);
+  const lv=liveSpot[metal];
+  if(lv!=null && Date.now()>out[out.length-1][0]) out.push([Date.now(),lv]);
+  return out.length>=2 ? out : series(metal).slice(-2);
+}
+function activeSeries(metal){ return state.tf==='1D' ? intradaySeries(metal) : series(metal); }
 function fmtMoney(v, dec){ if(v==null||isNaN(v)) return '—';
   return '$'+v.toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec}); }
+function fmtMoneyRich(v, dec){ if(v==null||isNaN(v)) return '—';   // small $/cents, editorial style
+  const s=v.toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+  const i=s.indexOf('.'); const whole=i<0?s:s.slice(0,i), cents=i<0?'':s.slice(i);
+  return '<span class="cur">$</span>'+whole+(cents?'<span class="cents">'+cents+'</span>':''); }
 function hexA(hex,a){ hex=hex.replace('#',''); if(hex.length===3)hex=hex.split('').map(c=>c+c).join('');
   const r=parseInt(hex.slice(0,2),16),g=parseInt(hex.slice(2,4),16),b=parseInt(hex.slice(4,6),16); return `rgba(${r},${g},${b},${a})`; }
+// the UI's glow accents follow the selected metal (gold stays the brand base)
+function applyAccent(m){ const a=METALS[m].acc, r=document.documentElement.style;
+  r.setProperty('--acc',a); r.setProperty('--acc-soft',hexA(a,.30)); r.setProperty('--acc-glow',hexA(a,.25)); }
 function decimateMinMax(pts, fromMs, spanMs, cols){
   const b=new Array(cols).fill(null);
   for(const p of pts){ const c=Math.min(cols-1,Math.max(0,Math.floor((p[0]-fromMs)/spanMs*(cols-1))));
@@ -402,18 +647,18 @@ const box=document.getElementById('chartwrap'), tip=document.getElementById('tip
 const PAD={t:24,r:66,b:30,l:10};
 let view=null;
 
-function fullBounds(metal){ const s=series(metal); return {lo:s[0][0], hi:s[s.length-1][0]}; }
+function fullBounds(metal){ const s=activeSeries(metal); return {lo:s[0][0], hi:s[s.length-1][0]}; }
 function currentRange(metal){          // the visible [from,to] — from a timeframe preset, or a custom zoom/pan
   const {lo,hi}=fullBounds(metal);
   if(state.view){ const from=Math.max(lo,state.view.from), to=Math.min(hi,state.view.to);
     if(from<to) return {from,to}; }    // inverted view (e.g. metal switch outside its history) → fall through to the preset
-  if(state.tf==='MAX') return {from:lo, to:hi};
+  if(state.tf==='1D'||state.tf==='MAX') return {from:lo, to:hi};   // 1D = the whole intraday buffer
   if(state.tf==='YTD'){ const d=new Date(hi);   // floor to 3 days so Jan 1 never degenerates to a 1ms window
     return {from:Math.max(lo,Math.min(Date.UTC(d.getUTCFullYear(),0,1), hi-3*DAY)), to:hi}; }
   return {from:Math.max(lo, hi-TF_DAYS[state.tf]*DAY), to:hi};
 }
 function windowPts(metal){
-  const s=series(metal); const {from,to}=currentRange(metal);
+  const s=activeSeries(metal); const {from,to}=currentRange(metal);
   let i0=0; while(i0<s.length-1 && s[i0][0]<from) i0++; if(i0>0) i0--;   // one anchor each side for continuity
   let i1=s.length-1; while(i1>0 && s[i1][0]>to) i1--; if(i1<s.length-1) i1++;
   if(i1<=i0) i1=Math.min(s.length-1,i0+1);
@@ -422,21 +667,28 @@ function windowPts(metal){
 function niceTicks(min,max,n){ const span=(max-min)||1, raw=span/n, mag=Math.pow(10,Math.floor(Math.log10(raw)));
   const norm=raw/mag; let step=norm>=5?10:norm>=2?5:norm>=1?2:1; step*=mag;
   const start=Math.ceil(min/step)*step, out=[]; for(let v=start; v<=max+step*.001; v+=step) out.push(v); return out; }
-function fmtAxis(v){ if(v>=100) return '$'+Math.round(v).toLocaleString('en-US');
+function fmtAxis(v){ if(isX()) return v>=100?String(Math.round(v)):(+v).toFixed(1);
+  if(v>=100) return '$'+Math.round(v).toLocaleString('en-US');
   if(v>=10) return '$'+v.toFixed(0); if(v>=1) return '$'+v.toFixed(1); return '$'+v.toFixed(2); }
 function fmtDateTick(ms,span){ const d=new Date(ms);
+  if(span<=2*DAY) return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
   if(span>1300*DAY) return d.getUTCFullYear();
   if(span>130*DAY) return d.toLocaleDateString('en-US',{month:'short',year:'2-digit',timeZone:'UTC'});
   return d.toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'}); }
-function fmtDateFull(ms){ return new Date(ms).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'}); }
+function fmtDateFull(ms){ const d=new Date(ms);
+  // format by the TIMESTAMP's granularity, not global state: daily points sit exactly on
+  // UTC midnights; intraday ticks never do. Keeps perf-chip titles and the compare caption
+  // date-correct even while 1D is active.
+  if(ms%DAY!==0) return d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+', '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'}); }
 
 // faint ambient seams — the OTHER two metals' full history, low in the frame (veins in the stone)
-function drawGhost(metal, x0, x1, H, fromMs, spanMs){
+function drawGhost(metal, x0, x1, H, fromMs, spanMs, band){
   const s=windowPts(metal); if(s.length<2) return;   // same time window as the live line
   const acc=METALS[metal].acc;
   let mn=Infinity,mx=-Infinity; for(const p of s){ if(p[1]<mn)mn=p[1]; if(p[1]>mx)mx=p[1]; }
-  const band = metal==='silver' ? [0.80,0.965] : [0.70,0.86];
-  const yTop=H*band[0], yBot=H*band[1], rng=(mx-mn)||1;
+  band = band || [0.70,0.86];
+  const yTop=H*band[0], yBot=H*band[1], rng=Math.max(mx-mn, mx*0.002, 1e-9);   // flat seams stay flat
   const X=ms=>x0+(ms-fromMs)/spanMs*(x1-x0), Y=pr=>yBot-(pr-mn)/rng*(yBot-yTop);
   const draw=decimateMinMax(s,fromMs,spanMs,Math.max(80,Math.floor(x1-x0)));
   const path=new Path2D(); path.moveTo(X(draw[0][0]),Y(draw[0][1])); for(const p of draw) path.lineTo(X(p[0]),Y(p[1]));
@@ -467,7 +719,132 @@ function drawAnnotations(fromMs,spanMs,x0,x1,y0,y1,X){
   }
   ctx.restore();
 }
+function nearestPt(arr,ms){ if(!arr||!arr.length) return null; let lo=0,hi=arr.length-1;
+  while(lo<hi){const m=(lo+hi)>>1; if(arr[m][0]<ms)lo=m+1;else hi=m;}
+  if(lo>0&&Math.abs(arr[lo-1][0]-ms)<Math.abs(arr[lo][0]-ms))lo--; return arr[lo]; }
+function fmtPct(v){ const a=Math.abs(v); return (v>0?'+':v<0?'−':'')+(a>=10?Math.round(a):a.toFixed(1))+'%'; }
+
+// Compare mode: all three metals overlaid, each indexed to 0% at the window start —
+// the honest way to compare assets whose prices differ by 60x.
+function renderCompare(W,H,x0,x1,y0,y1,fromMs,toMs,spanMs){
+  const X=ms=>x0+(ms-fromMs)/spanMs*(x1-x0);
+  const raw=[];
+  for(const key of ['gold','silver','platinum']){
+    const pts=windowPts(key); if(pts.length<2) continue;
+    const visAll=pts.filter(p=>p[0]>=fromMs-1&&p[0]<=toMs+1);
+    if(visAll.length<2) continue;      // no data in this window — never fabricate a line from another era
+    if(visAll[0][1]) raw.push({key,pts,vis:visAll});
+  }
+  if(!raw.length) return;
+  // index every metal from the LATEST common start date — comparing gold-since-1915
+  // against platinum-since-1969 from different baselines would be a misleading chart
+  const common=Math.max.apply(null, raw.map(s=>s.vis[0][0]));
+  const sets=[]; let mn=Infinity,mx=-Infinity;
+  for(const s of raw){
+    let vis=s.vis; const i0=vis.findIndex(p=>p[0]>=common);
+    if(i0>0) vis=vis.slice(i0);
+    if(vis.length<2||!vis[0][1]) continue;
+    const p0=vis[0][1];
+    for(const p of vis){ const r=(p[1]/p0-1)*100; if(r<mn)mn=r; if(r>mx)mx=r; }
+    sets.push({key:s.key,pts:s.pts,vis,p0});
+  }
+  if(!sets.length) return;
+  if(mx-mn<0.1){ const mid=(mx+mn)/2; mn=mid-0.05; mx=mid+0.05; }   // flat compare stays flat, not a cliff
+  const pad=(mx-mn)*0.12; const rlo=mn-pad, rhi=mx+pad;
+  const Yr=r=>y1-(r-rlo)/((rhi-rlo)||1)*(y1-y0);
+  const act=sets.find(s=>s.key===state.metal)||sets[0];
+  view={pts:act.pts,X,Y:pr=>Yr((pr/act.p0-1)*100),x0,x1,y0,y1,fromMs,toMs,spanMs,cmp:sets,cmpY:Yr};
+
+  // % grid with the zero line emphasized; label precision follows the tick step
+  ctx.font='600 11.5px '+getVar('--sans'); ctx.textBaseline='middle';
+  const yt2=niceTicks(rlo,rhi,5); const step=yt2.length>1?Math.abs(yt2[1]-yt2[0]):1;
+  for(let v of yt2){
+    if(Math.abs(v)<1e-9) v=0;
+    const y=Yr(v); if(y<y0-1||y>y1+1) continue;
+    ctx.strokeStyle=v===0?'rgba(255,255,255,.16)':'rgba(255,255,255,.06)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke();
+    ctx.textAlign='left'; ctx.shadowColor='rgba(0,0,0,.95)'; ctx.shadowBlur=7;
+    ctx.fillStyle='rgba(236,229,212,.96)';
+    ctx.fillText((v>0?'+':v<0?'−':'')+Math.abs(v).toFixed(step<1?1:0)+'%', x1+8, y); ctx.shadowBlur=0;
+  }
+  ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillStyle='rgba(232,224,206,.92)';
+  const nX=Math.min(6,Math.max(3,Math.floor((x1-x0)/130)));
+  for(let i=0;i<=nX;i++){ const ms=fromMs+spanMs*i/nX,x=X(ms);
+    if(x<x0+8||x>x1-8){ if(i!==0&&i!==nX) continue; }
+    ctx.shadowColor='rgba(0,0,0,.95)'; ctx.shadowBlur=7;
+    ctx.fillText(fmtDateTick(ms,spanMs), Math.max(x0+16,Math.min(x1-16,x)), y1+8); ctx.shadowBlur=0; }
+  drawAnnotations(fromMs,spanMs,x0,x1,y0,y1,X);
+  // say exactly what the comparison is anchored to
+  ctx.font='600 10px '+getVar('--sans'); ctx.textAlign='left'; ctx.textBaseline='top';
+  ctx.fillStyle='rgba(232,224,206,.55)'; ctx.shadowColor='rgba(0,0,0,.9)'; ctx.shadowBlur=5;
+  ctx.fillText('Indexed to 0% · '+fmtDateFull(common), x0+8, y0+2); ctx.shadowBlur=0;
+
+  // three equal-weight molten lines, revealed by the same draw-in
+  const clipR=Math.min(x0+(x1-x0)*anim, x1);
+  ctx.save(); ctx.beginPath(); ctx.rect(x0-0.5,0,Math.max(0,clipR-x0)+1,H+40); ctx.clip();
+  ctx.lineJoin='round'; ctx.lineCap='round';
+  for(const s of sets){
+    const acc=METALS[s.key].acc;
+    const draw=decimateMinMax(s.vis,fromMs,spanMs,Math.max(60,Math.floor(x1-x0)));
+    if(draw.length<2) continue;
+    const P=new Path2D(); P.moveTo(X(draw[0][0]),Yr((draw[0][1]/s.p0-1)*100));
+    for(const p of draw) P.lineTo(X(p[0]),Yr((p[1]/s.p0-1)*100));
+    // color identity first: the accent carries the line, the pale core is just a thin filament
+    ctx.strokeStyle=hexA(acc,.18); ctx.lineWidth=7; ctx.shadowColor=hexA(acc,.6); ctx.shadowBlur=14; ctx.stroke(P);
+    ctx.strokeStyle=hexA(acc,.85); ctx.lineWidth=2.6; ctx.shadowBlur=8; ctx.stroke(P);
+    ctx.strokeStyle=METALS[s.key].core; ctx.lineWidth=1; ctx.shadowBlur=2; ctx.stroke(P); ctx.shadowBlur=0;
+  }
+  ctx.restore();
+
+  // endpoint dots + de-overlapped labels
+  if(anim>=1){
+    const lbl=[];
+    for(const s of sets){ const lp=s.vis[s.vis.length-1], r=(lp[1]/s.p0-1)*100;
+      lbl.push({key:s.key,r,ex:Math.min(X(lp[0]),x1),ey:Yr(r)}); }
+    for(const L of lbl){ ctx.beginPath(); ctx.arc(L.ex,L.ey,3.6,0,7); ctx.fillStyle=METALS[L.key].core;
+      ctx.shadowColor=METALS[L.key].acc; ctx.shadowBlur=10; ctx.fill(); ctx.shadowBlur=0; }
+    lbl.sort((a,b)=>a.ey-b.ey);
+    let prevY=-1e9;
+    for(const L of lbl){ let ly=Math.max(L.ey, y0+14); if(ly-prevY<13) ly=prevY+13; prevY=ly;
+      ctx.font='700 10px '+getVar('--sans'); ctx.textAlign='right'; ctx.textBaseline='bottom';
+      ctx.fillStyle=hexA(METALS[L.key].acc,.95); ctx.shadowColor='rgba(0,0,0,.95)'; ctx.shadowBlur=5;
+      ctx.fillText(METALS[L.key].label.toUpperCase()+'  '+fmtPct(L.r), L.ex-6, ly-7); ctx.shadowBlur=0; }
+  }
+}
+// One reader for "what do all three metals say at date ms" — used by mouse AND keyboard
+// so both input paths give the identical compare readout. A metal only reports when the
+// matched point is actually near the crosshair date (no pinning to a series' start).
+function cmpRowsAt(ms){
+  const out={rows:'',say:'',dots:[]};
+  if(!view||!view.cmp) return out;
+  for(const s2 of view.cmp){ const q=nearestPt(s2.vis,ms); if(!q) continue;
+    if(Math.abs(q[0]-ms) > Math.max(45*DAY, view.spanMs*0.02)) continue;
+    const r=(q[1]/s2.p0-1)*100, a2=METALS[s2.key].acc, qx=view.X(q[0]), qy=view.cmpY(r);
+    if(qx>=view.x0-2&&qx<=view.x1+2) out.dots.push({x:qx,y:qy,key:s2.key});
+    out.rows+='<div class="trow"><span class="tm" style="color:'+a2+'">'+METALS[s2.key].label+'</span>'
+      +'<span class="tnum" style="color:'+(r>=0?'var(--up)':'var(--down)')+'">'+(r>=0?'+':'−')+Math.abs(r).toFixed(2)+'%</span></div>';
+    out.say+=METALS[s2.key].label+' '+(r>=0?'up ':'down ')+Math.abs(r).toFixed(2)+' percent. ';
+  }
+  return out;
+}
 let anim=1, animRAF=null;
+// Base-frame cache: hovering redraws the crosshair over a cached bitmap instead of
+// re-tessellating three full series every mousemove — a large battery/jank win.
+let frameCache=null;
+function snapFrame(){
+  if(anim>=1 && !dragging){
+    if(!frameCache) frameCache=document.createElement('canvas');
+    if(frameCache.width!==cv.width||frameCache.height!==cv.height){ frameCache.width=cv.width; frameCache.height=cv.height; }
+    const fg=frameCache.getContext('2d'); fg.clearRect(0,0,frameCache.width,frameCache.height); fg.drawImage(cv,0,0);
+    frameCache._ok=true;
+  } else if(frameCache) frameCache._ok=false;
+}
+function redrawBase(){
+  if(frameCache && frameCache._ok && frameCache.width===cv.width && frameCache.height===cv.height && anim>=1){
+    ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,cv.width,cv.height);
+    ctx.drawImage(frameCache,0,0); ctx.restore();
+  } else render();
+}
 function render(){
   const m=METALS[state.metal], acc=m.acc;
   const dpr=Math.min(window.devicePixelRatio||1,2);
@@ -479,15 +856,26 @@ function render(){
   const x0=PAD.l,x1=W-PAD.r,y0=PAD.t,y1=H-PAD.b;
   const fromMs=rng.from,toMs=rng.to,spanMs=(toMs-fromMs)||1;
 
-  // ambient seams of the other two metals, over the SAME window (so they track the timeframe/zoom)
-  for(const g of ['gold','silver','platinum']) if(g!==state.metal) drawGhost(g, x0, x1, H, fromMs, spanMs);
+  if(state.compare){ renderCompare(W,H,x0,x1,y0,y1,fromMs,toMs,spanMs); snapFrame(); return; }
+
+  // ambient seams of the other two metals, over the SAME window (so they track the timeframe/zoom).
+  // Bands are assigned by SLOT, not by metal — the two ghosts must never share a band and tangle.
+  if(state.metal!=='ratio'){   // the ratio view stays clean — no price seams behind a unitless line
+    const GHOST_BANDS=[[0.70,0.86],[0.80,0.965]];
+    ['gold','silver','platinum'].filter(g=>g!==state.metal)
+      .forEach((g,i)=>drawGhost(g, x0, x1, H, fromMs, spanMs, GHOST_BANDS[i%2]));
+  }
 
   // only points actually inside the window drive the price scale + markers
   const vis=pts.filter(p=>p[0]>=fromMs-1 && p[0]<=toMs+1);
   const scalePts=vis.length?vis:pts;
   let dMin=Infinity,dMax=-Infinity; for(const p of scalePts){ if(p[1]<dMin)dMin=p[1]; if(p[1]>dMax)dMax=p[1]; }
   const X=ms=>x0+(ms-fromMs)/spanMs*(x1-x0);
-  const padP=(dMax-dMin)*0.12||dMax*0.05; const minP=dMin-padP, maxP=dMax+padP;
+  // never scale tighter than 0.2% of the price: a closed-market window that moved by a
+  // fraction of a cent must render as a flat line, not a full-height cliff
+  const minRangeP=Math.max(dMax*0.002, 0.01);
+  if(dMax-dMin<minRangeP){ const mid=(dMax+dMin)/2; dMin=mid-minRangeP/2; dMax=mid+minRangeP/2; }
+  const padP=(dMax-dMin)*0.12; const minP=dMin-padP, maxP=dMax+padP;
   const Y=pr=>y1-(pr-minP)/((maxP-minP)||1)*(y1-y0); const yt=niceTicks(minP,maxP,5);
   view={pts,X,Y,minP,maxP,x0,x1,y0,y1,fromMs,toMs,spanMs};
 
@@ -541,6 +929,7 @@ function render(){
     if(ex>=x0-1&&ex<=x1+1){
       ctx.beginPath(); ctx.arc(ex,ey,4,0,7); ctx.fillStyle=m.core; ctx.shadowColor=acc; ctx.shadowBlur=12; ctx.fill(); ctx.shadowBlur=0;
       ctx.beginPath(); ctx.arc(ex,ey,8,0,7); ctx.strokeStyle=hexA(acc,.5); ctx.lineWidth=1.4; ctx.stroke(); } }
+  snapFrame();
 }
 function startAnim(){ cancelAnimationFrame(animRAF);
   if(REDUCE){ anim=1; render(); return; }              // prefers-reduced-motion: no wipe-in
@@ -552,14 +941,18 @@ function startAnim(){ cancelAnimationFrame(animRAF);
 function clampView(from,to){ const {lo,hi}=fullBounds(state.metal); const span=to-from;
   if(from<lo){ from=lo; to=lo+span; } if(to>hi){ to=hi; from=hi-span; }
   return {from:Math.max(lo,from), to:Math.min(hi,to)}; }
+function minSpan(){ return state.tf==='1D' ? 5*60000 : 3*DAY; }   // intraday zooms to 5 minutes, daily to 3 days
 function setView(from,to){ const {lo,hi}=fullBounds(state.metal);
-  let span=Math.max(3*DAY, Math.min(hi-lo, to-from)); to=from+span;
-  state.view=clampView(from,to); syncTfHighlight(); renderHeadline(); render(); }
+  let span=Math.max(minSpan(), Math.min(hi-lo, to-from)); to=from+span;
+  const v=clampView(from,to);
+  if(!state.view){ const pr=currentRange(state.metal);   // a no-op gesture must not strip the preset highlight
+    if(Math.abs(v.from-pr.from)<1 && Math.abs(v.to-pr.to)<1) return; }
+  state.view=v; syncTfHighlight(); renderHeadline(); render(); }
 function zoomTarget(centerT, factor){
   const cr=view?{from:view.fromMs,to:view.toMs}:currentRange(state.metal);
   const span=cr.to-cr.from, rel=(centerT-cr.from)/(span||1);
   const {lo,hi}=fullBounds(state.metal);
-  const nspan=Math.max(3*DAY, Math.min(hi-lo, span*factor));
+  const nspan=Math.max(minSpan(), Math.min(hi-lo, span*factor));
   return {from:centerT-rel*nspan, to:centerT-rel*nspan+nspan}; }
 function zoomAround(centerT, factor){ const t=zoomTarget(centerT,factor); setView(t.from,t.to); }
 let viewRAF=null, viewTO=null;
@@ -591,32 +984,49 @@ function onMove(e){
   if(pts[lo][0]>view.toMs && lo>0) lo--;
   if(pts[lo][0]<view.fromMs && lo<pts.length-1) lo++;
   const p=pts[lo],px=view.X(p[0]),py=view.Y(p[1]);
-  if(px<view.x0-2||px>view.x1+2){ render(); tip.style.opacity=0; return; }
-  render();
+  if(px<view.x0-2||px>view.x1+2){ redrawBase(); tip.style.opacity=0; return; }
+  redrawBase();
   const acc=METALS[state.metal].acc;
   ctx.beginPath(); ctx.moveTo(px,view.y0); ctx.lineTo(px,view.y1);
   ctx.strokeStyle=hexA(acc,.5); ctx.lineWidth=1; ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
-  ctx.beginPath(); ctx.arc(px,py,5,0,7); ctx.fillStyle=METALS[state.metal].core; ctx.shadowColor=acc; ctx.shadowBlur=12; ctx.fill(); ctx.shadowBlur=0;
   document.getElementById('tip-date').textContent=fmtDateFull(p[0]);
-  document.getElementById('tip-price').textContent=fmtMoney(p[1],METALS[state.metal].decimals);
+  if(view.cmp){
+    // compare mode: one dot per metal, tooltip shows all three % moves
+    const c=cmpRowsAt(p[0]);
+    for(const d2 of c.dots){ ctx.beginPath(); ctx.arc(d2.x,d2.y,4,0,7);
+      ctx.fillStyle=METALS[d2.key].core; ctx.shadowColor=METALS[d2.key].acc; ctx.shadowBlur=10; ctx.fill(); ctx.shadowBlur=0; }
+    if(!c.rows){ tip.style.opacity=0; return; }
+    document.getElementById('tip-price').innerHTML=c.rows;
+  } else {
+    ctx.beginPath(); ctx.arc(px,py,5,0,7); ctx.fillStyle=METALS[state.metal].core; ctx.shadowColor=acc; ctx.shadowBlur=12; ctx.fill(); ctx.shadowBlur=0;
+    const prev=lo>0?pts[lo-1]:null; let sub='';
+    if(prev&&prev[1]){ let dd=p[1]-prev[1]; if(Math.abs(dd)<Math.pow(10,-METALS[state.metal].decimals)/2) dd=0;
+      const pc2=dd/prev[1]*100, gap=p[0]-prev[0];
+      // pre-1968 history is monthly/weekly — never label a month's move as a "day change"
+      const lbl=gap<=5*DAY?'day change':'since '+fmtDateFull(prev[0]);
+      sub='<div class="tsub '+(dd>=0?'up':'down')+' tnum">'+(dd>=0?'▲':'▼')+' '
+        +fmtVal(Math.abs(dd),METALS[state.metal].decimals)+' ('+(dd>=0?'+':'−')+Math.abs(pc2).toFixed(2)+'%) '+lbl+'</div>'; }
+    document.getElementById('tip-price').innerHTML=fmtVal(p[1],METALS[state.metal].decimals)+sub;
+  }
   tip.style.opacity=1; const tw=tip.offsetWidth,th=tip.offsetHeight;
   let tx=px+14; if(tx+tw>box.clientWidth-4) tx=px-tw-14;
   let ty=py-th-14; if(ty<2) ty=py+16; tip.style.left=tx+'px'; tip.style.top=ty+'px';
 }
-function onLeave(){ tip.style.opacity=0; if(!dragging) render(); }
+function onLeave(){ tip.style.opacity=0; if(!dragging) redrawBase(); }
 // chart must be "engaged" (clicked) before it captures the scroll wheel — so the page scrolls freely otherwise
 let chartActive=false;
-function setActive(on){ if(chartActive===on) return; chartActive=on; box.classList.toggle('active',on); }
+function setActive(on){ if(chartActive===on) return; chartActive=on; box.classList.toggle('active',on);
+  if(on) track('chart_engaged',true); }
 let pinchD=0, pinchC=0;
 function touchDist(e){ const a=e.touches[0],b=e.touches[1]; return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY); }
 cv.addEventListener('mousemove',onMove); cv.addEventListener('mouseleave',onLeave);
-cv.addEventListener('mousedown',e=>{ setActive(true); dragging=true; dragMoved=false; dragX0=e.clientX;
+cv.addEventListener('mousedown',e=>{ cancelViewGlide(); setActive(true); dragging=true; dragMoved=false; dragX0=e.clientX;
   const cr=currentRange(state.metal); dragFrom=cr.from; dragTo=cr.to; tip.style.opacity=0; cv.style.cursor='grabbing'; });
 window.addEventListener('mouseup',()=>{ if(dragging){ dragging=false; cv.style.cursor='grab'; } });
 document.addEventListener('mousedown',e=>{ if(!box.contains(e.target)) setActive(false); });   // click away releases the wheel
 cv.addEventListener('dblclick',()=>{ cancelViewGlide(); state.view=null; syncTfHighlight(); renderHeadline(); startAnim(); });
 cv.addEventListener('wheel',e=>{ if(!chartActive||!view) return;   // not engaged → let the page scroll normally
-  e.preventDefault();
+  e.preventDefault(); cancelViewGlide();
   const r=cv.getBoundingClientRect(); const cx=Math.max(view.x0,Math.min(view.x1,e.clientX-r.left));
   const centerT=view.fromMs+(cx-view.x0)/(view.x1-view.x0)*view.spanMs;
   let dy=e.deltaY||0; if(e.deltaMode===1) dy*=16; else if(e.deltaMode===2) dy*=400;
@@ -626,7 +1036,7 @@ cv.style.cursor='grab';
 if(window.matchMedia && matchMedia('(pointer:coarse)').matches){   // touch devices tap, they don't click
   const cl=document.getElementById('chartlock'); if(cl) cl.innerHTML='<span>◆</span> Tap the chart to zoom &amp; pan'; }
 let t1X=0,t1Y=0,t1From=0,t1To=0,t1Mode=null;           // single-finger touch state
-cv.addEventListener('touchstart',e=>{ if(e.touches.length===2){ setActive(true); t1Mode='pinch'; pinchD=touchDist(e); const r=cv.getBoundingClientRect();
+cv.addEventListener('touchstart',e=>{ if(e.touches.length===2){ cancelViewGlide(); setActive(true); t1Mode='pinch'; pinchD=touchDist(e); const r=cv.getBoundingClientRect();
     const midX=(e.touches[0].clientX+e.touches[1].clientX)/2-r.left;
     pinchC=view? view.fromMs+(Math.max(view.x0,Math.min(view.x1,midX))-view.x0)/(view.x1-view.x0)*view.spanMs : 0; }
   else { t1X=e.touches[0].clientX; t1Y=e.touches[0].clientY; t1Mode=null;
@@ -638,7 +1048,8 @@ cv.addEventListener('touchmove',e=>{ if(e.touches.length===2 && view){ e.prevent
     // engaged + zoomed: a mostly-horizontal drag pans the window (vertical stays a page scroll)
     if(chartActive && state.view && view){
       const dx=e.touches[0].clientX-t1X, dy=e.touches[0].clientY-t1Y;
-      if(!t1Mode && (Math.abs(dx)>8||Math.abs(dy)>8)) t1Mode=Math.abs(dx)>Math.abs(dy)?'pan':'scroll';
+      if(!t1Mode && (Math.abs(dx)>8||Math.abs(dy)>8)){ t1Mode=Math.abs(dx)>Math.abs(dy)?'pan':'scroll';
+        if(t1Mode==='pan') cancelViewGlide(); }
       if(t1Mode==='pan'){ e.preventDefault(); tip.style.opacity=0;
         const span=t1To-t1From, dt=-dx/((view.x1-view.x0)||1)*span; setView(t1From+dt, t1To+dt); return; }
     }
@@ -650,7 +1061,8 @@ cv.addEventListener('touchend',e=>{ if(e.touches.length===0){
 
 function computeStats(metal){
   const s=series(metal); const {from,to}=currentRange(metal);
-  const win=s.filter(p=>p[0]>=from-1 && p[0]<=to+1); const use=win.length>1?win:s.slice(-2);
+  const sw=activeSeries(metal);                       // window stats follow the 1D buffer when active
+  const win=sw.filter(p=>p[0]>=from-1 && p[0]<=to+1); const use=win.length>1?win:s.slice(-2);
   const cur=s[s.length-1][1], open=use[0][1], winLast=use[use.length-1][1];
   let hi=-Infinity,lo=Infinity; for(const p of use){ if(p[1]>hi)hi=p[1]; if(p[1]<lo)lo=p[1]; }
   const chg=winLast-open, pct=open?chg/open*100:0;
@@ -660,28 +1072,94 @@ function computeStats(metal){
 }
 function renderHeadline(){
   const m=METALS[state.metal], st=computeStats(state.metal), dec=m.decimals;
-  document.getElementById('hl-price').textContent=fmtMoney(st.cur,dec);
+  document.getElementById('hl-price').innerHTML=fmtValRich(st.cur,dec);
+  // permanent "today" readout, anchored to the last close before the newest session —
+  // the default 1Y view should still answer "what has it done today?"
+  // anchorClose = last REAL close strictly before today (raw data, immune to the
+  // live-overwritten tip) — the same anchor the holdings card uses, so they always agree
+  const anch=anchorClose(state.metal), tEl=document.getElementById('hl-today');
+  const rawSrc=DATA[state.metal==='ratio'?'gold':state.metal];
+  const rawLast=rawSrc[rawSrc.length-1];
+  const lastLive=state.metal==='ratio'
+    ? (liveSpot.gold!=null&&liveSpot.silver ? liveSpot.gold/liveSpot.silver : ratioSeries()[ratioSeries().length-1][1])
+    : (liveSpot[state.metal]!=null?liveSpot[state.metal]:rawLast[1]);
+  if(tEl){ if(anch && anch[1]){
+    let dd2=lastLive-anch[1]; if(Math.abs(dd2)<0.005) dd2=0;
+    const pc3=dd2/anch[1]*100;
+    const isToday=rawLast[0]===Math.floor(Date.now()/DAY);
+    tEl.innerHTML='<span class="'+(dd2>=0?'up':'down')+'">'+(dd2>=0?'▲':'▼')+' '+Math.abs(pc3).toFixed(2)+'% '+(isToday?'today':'this session')+'</span>';
+  } else tEl.textContent=''; }
+  if(Math.abs(st.chg)<Math.pow(10,-dec)/2){ st.chg=0; st.pct=0; }   // a sub-display-unit move is flat, never "−$0.00"
   const up=st.chg>=0, d=document.getElementById('hl-delta');
   d.className=up?'up':'down';
-  d.textContent=(up?'▲ ':'▼ ')+fmtMoney(Math.abs(st.chg),dec)+' ('+(up?'+':'−')+Math.abs(st.pct).toFixed(2)+'%)';
-  document.getElementById('hl-range').textContent=state.view?'IN VIEW':(state.tf==='MAX'?'ALL TIME':state.tf);
+  d.textContent=(up?'▲ ':'▼ ')+fmtVal(Math.abs(st.chg),dec)+' ('+(up?'+':'−')+Math.abs(st.pct).toFixed(2)+'%)';
+  document.getElementById('hl-range').textContent=(state.view?'IN VIEW':(state.tf==='MAX'?'ALL TIME':state.tf))+(state.real?' · TODAY’S $':'');
   const stats=[
-    ['Open',fmtMoney(st.open,dec)],['Period High',fmtMoney(st.hi,dec)],['Period Low',fmtMoney(st.lo,dec)],
-    ['Change',(up?'+':'−')+fmtMoney(Math.abs(st.chg),dec)],
-    ['52-Wk Range',fmtMoney(st.l52,dec)+' <small>–</small> '+fmtMoney(st.h52,dec)],
-    ['All-Time High',fmtMoney(st.ath,dec)],
+    ['Open',fmtVal(st.open,dec)],['Period High',fmtVal(st.hi,dec)],['Period Low',fmtVal(st.lo,dec)],
+    ['Change',(up?'+':'−')+fmtVal(Math.abs(st.chg),dec)],
+    ['52-Wk Range',fmtVal(st.l52,dec)+' <small>–</small> '+fmtVal(st.h52,dec)],
+    ['All-Time High',fmtVal(st.ath,dec)],
   ];
+  const gs=series('gold'), ss=series('silver');   // the ratio metals investors actually watch
+  if(gs.length&&ss.length&&ss[ss.length-1][1]) stats.push(['Gold:Silver Ratio',(gs[gs.length-1][1]/ss[ss.length-1][1]).toFixed(1)]);
+  if(isX()){ const pc=ratioPercentile();          // context that makes the ratio mean something
+    if(pc!=null) stats.push(['Higher Than',pc+'%<small> of all days on record</small>']); }
   document.getElementById('stats').innerHTML=stats.map(([k,v])=>
     `<div class="stat"><div class="k">${k}</div><div class="v tnum">${v}</div></div>`).join('');
-  syncDateInputs(); updateA11y();
+  // the ratio card is a door: click to chart the full ratio history, click again to come back
+  for(const c of document.querySelectorAll('#stats .stat')){
+    const k=c.querySelector('.k'); if(!k||k.textContent!=='Gold:Silver Ratio') continue;
+    c.style.cursor='pointer'; c.setAttribute('role','button'); c.setAttribute('tabindex','0');
+    c.title=state.metal==='ratio'?'Back to the gold chart':'Chart the full Gold:Silver ratio history';
+    const go=()=>{ track('ratio_view',true); selectMetal(state.metal==='ratio'?'gold':'ratio'); };
+    c.addEventListener('click',go);
+    c.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } });
+  }
+  renderPerf(); syncDateInputs(); updateA11y();
+}
+// performance-since chips — read the returns at a glance, click to jump the chart there
+function renderPerf(){
+  const host=document.getElementById('perf'); if(!host) return;
+  const s=series(state.metal); const last=s[s.length-1];
+  const defs=[['1W',7],['1M',30],['YTD','ytd'],['1Y',365],['5Y',1825],['10Y',3650],['MAX','max']];
+  for(const [lab,d] of defs){
+    let t0;
+    if(d==='ytd'){ const dt=new Date(last[0]);   // same 3-day floor as currentRange's YTD, so chip and preset agree in early January
+      t0=Math.max(s[0][0], Math.min(Date.UTC(dt.getUTCFullYear(),0,1), last[0]-3*DAY)); }
+    else if(d==='max') t0=s[0][0];
+    else t0=last[0]-d*DAY;
+    let lo=0,hi=s.length-1; while(lo<hi){const m=(lo+hi)>>1; if(s[m][0]<t0)lo=m+1;else hi=m;}
+    const base=s[lo];
+    let b=host.querySelector('[data-p="'+lab+'"]');
+    if(!b){ b=document.createElement('button'); b.type='button'; b.className='perfchip'; b.dataset.p=lab;
+      b.append(lab); const bb=document.createElement('b'); bb.className='tnum'; b.appendChild(bb);
+      b.addEventListener('click',()=>{ cancelViewGlide(); state.view=null; state.tf=lab;
+        syncTfHighlight(); renderHeadline(); startAnim(); });
+      host.appendChild(b); }
+    const el=b.querySelector('b');
+    if(!base||!base[1]||base[0]>=last[0]){ el.textContent='—'; el.className='tnum'; b.title=''; continue; }
+    const pc=(last[1]/base[1]-1)*100, a=Math.abs(pc);
+    el.className=(pc>=0?'up':'down')+' tnum';
+    el.textContent=(pc>=0?'+':'−')+(a>=100?a.toFixed(0):a.toFixed(1))+'%';
+    b.title=METALS[state.metal].label+' since '+fmtDateFull(base[0]);
+  }
 }
 function renderNote(){
   const st=META.start||{};
+  // self-diagnose a dead refresh pipeline: if the newest historical point is over a week
+  // old, say so rather than silently presenting stale history as current
+  let staleNote='';
+  try{
+    const as=META.asof||{};
+    const newest=Math.max.apply(null,['gold','silver','platinum'].map(k=>Date.parse((as[k]||'1970-01-01')+'T00:00:00Z')));
+    if(isFinite(newest) && Date.now()-newest > 7*DAY)
+      staleNote=' <span style="color:#d9a94e">⚠ The historical series is awaiting its scheduled refresh — the live spot quote above updates separately in your browser.</span>';
+  }catch(e){}
   document.getElementById('datanote').innerHTML=
     `<b>Data:</b> London spot for gold &amp; silver (history back to ${(st.gold||'').slice(0,4)} / ${(st.silver||'').slice(0,4)}) and platinum daily back to ${(st.platinum||'').slice(0,4)}, `
-    +`from public keyless feeds (goldprice.org, macrotrends), with the most recent sessions filled from official central-bank reference rates and recorded live quotes. Live spot via gold-api.com. `
+    +`from public market-data sources (goldprice.org, macrotrends), with the most recent sessions filled from official central-bank reference rates and recorded live quotes. Live spot via gold-api.com. `
     +`<b>Baseline built:</b> ${META.built_ny||'—'} · refreshed twice daily. `
-    +`<span id="livestamp">Live spot updates the moment you open this page.</span>`;
+    +`<span id="livestamp">Live spot refreshes automatically while this page is open.</span>`+staleNote;
 }
 function renderSelector(){
   // update in place — rebuilding the buttons every live tick would destroy keyboard focus + in-flight clicks
@@ -693,23 +1171,45 @@ function renderSelector(){
       b.innerHTML=`<span class="sw"></span>${m.label}<b class="mp tnum"></b>`;
       b.addEventListener('click',()=>selectMetal(key)); host.appendChild(b); }
     b.className='mtab'+(state.metal===key?' on':'');
+    b.setAttribute('aria-pressed',String(state.metal===key));
     b.querySelector('.mp').textContent=fmtMoney(cur,key==='silver'?2:0);
   }
 }
-function syncTfHighlight(){ document.querySelectorAll('#tframes button').forEach(x=>x.classList.toggle('on', !state.view && x.dataset.tf===state.tf)); }
-function selectMetal(m){ cancelViewGlide(); state.metal=m;
+function syncTfHighlight(){ document.querySelectorAll('#tframes button').forEach(x=>{
+  const on=!state.view && x.dataset.tf===state.tf;
+  x.classList.toggle('on',on); x.setAttribute('aria-pressed',String(on)); }); }
+function selectMetal(m){ cancelViewGlide(); state.metal=m; applyAccent(m);
   if(state.view){ const {lo,hi}=fullBounds(m);          // re-fit a custom window to this metal's history so it can't invert
     const span=Math.min(hi-lo, state.view.to-state.view.from);
     const from=Math.max(lo, Math.min(state.view.from, hi-span));
     state.view={from, to:from+span}; }
   renderSelector(); renderHeadline(); startAnim(); if(typeof syncAlertMetal==='function') syncAlertMetal(); }
 document.querySelectorAll('#tframes button').forEach(b=>b.addEventListener('click',()=>{
-  cancelViewGlide(); state.tf=b.dataset.tf; state.view=null; syncTfHighlight(); renderHeadline(); startAnim(); }));
+  cancelViewGlide(); state.tf=b.dataset.tf; state.view=null;
+  if(state.tf==='1D') track('view_1d',true);
+  syncTfHighlight(); renderHeadline(); startAnim(); }));
 document.querySelectorAll('#zoom button').forEach(b=>b.addEventListener('click',()=>{
   const z=b.dataset.z;
   if(z==='reset'){ cancelViewGlide(); state.view=null; syncTfHighlight(); renderHeadline(); startAnim(); return; }
   const cr=view?{from:view.fromMs,to:view.toMs}:currentRange(state.metal);
   const t=zoomTarget((cr.from+cr.to)/2, z==='in'?0.78:1.28); animateViewTo(t.from,t.to); }));
+const realBtn=document.getElementById('real');
+if(realBtn){
+  if(!META.cpi) realBtn.style.display='none';   // no CPI data → never show wrong numbers
+  else realBtn.addEventListener('click',()=>{
+    cancelViewGlide(); state.real=!state.real; track('real_dollars',true);
+    realBtn.classList.toggle('on',state.real); realBtn.setAttribute('aria-pressed',String(state.real));
+    renderSelector(); renderHeadline(); startAnim(); });
+}
+const cmpBtn=document.getElementById('cmp');
+if(cmpBtn) cmpBtn.addEventListener('click',()=>{
+  cancelViewGlide(); dragging=false; dragMoved=false; pinchD=0; t1Mode=null;   // no gesture may straddle a mode switch
+  tip.style.opacity=0;                                                          // a $-tooltip must not linger over a %-chart
+  state.compare=!state.compare;
+  if(state.compare) track('compare_on',true);
+  cmpBtn.classList.toggle('on',state.compare); cmpBtn.setAttribute('aria-pressed',String(state.compare));
+  render();                                    // sync frame: hover state can never mix the two modes
+  renderHeadline(); startAnim(); });
 
 // custom date range
 function syncDateInputs(){
@@ -726,6 +1226,7 @@ function applyDateRange(){
   const f=Date.parse(document.getElementById('dr-from').value+'T00:00:00Z');
   const t=Date.parse(document.getElementById('dr-to').value+'T00:00:00Z');
   if(isNaN(f)||isNaN(t)) return;
+  if(state.tf==='1D') state.tf='MAX';   // historical dates make no sense inside the intraday buffer — exit 1D first
   animateViewTo(Math.min(f,t), Math.max(f,t)+DAY);
 }
 document.getElementById('dr-go').addEventListener('click',applyDateRange);
@@ -757,7 +1258,11 @@ async function refreshLive(){
       if(key===state.metal && prev!=null && Math.abs(val-prev)>1e-9) pulsePrice(val>=prev);
       liveSpot[key]=val; any=true;
     }
-    if(any){ liveAt=Date.now(); liveFails=0; setLive(true); renderSelector(); renderHeadline(); render();
+    if(any){ liveAt=Date.now(); liveFails=0; idbPush(); setLive(true); renderSelector(); renderHeadline(); render();
+      if(typeof checkAlerts==='function') checkAlerts();
+      if(typeof renderHoldings==='function') renderHoldings();
+      if(typeof renderMilestone==='function') renderMilestone();
+
       const ls=document.getElementById('livestamp');
       if(ls) ls.innerHTML='<span style="color:var(--up)">●</span> <b>Live spot as of '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'</b>';
     } else { liveFails++; if(liveFails>=2||!liveAt) setLive(false); }   // 2 strikes before downgrading the pill
@@ -772,13 +1277,46 @@ function exportChart(){
   g.setTransform(dpr,0,0,dpr,0,0);
   const st=computeStats(state.metal), m=METALS[state.metal];
   g.textBaseline='top'; g.fillStyle='#f6f3ec'; g.font='600 20px '+getVar('--serif');
-  g.fillText('GoldRock · '+m.label+'  '+fmtMoney(st.cur,m.decimals), 14, 12);
+  g.fillText('GoldRock · '+(state.compare?'Gold vs Silver vs Platinum (% change)':m.label+'  '+fmtVal(st.cur,m.decimals)), 14, 12);
   g.fillStyle=getVar('--muted'); g.font='11px '+getVar('--sans');
   g.fillText('goldrockmetalexchange.com · '+(state.view?'custom range':state.tf)+' · '+new Date().toLocaleDateString('en-US'), 14, 40);
   g.setTransform(1,0,0,1,0,0); g.drawImage(cv,0,pad);
-  const a=document.createElement('a'); a.href=c.toDataURL('image/png'); a.download='goldrock-'+state.metal+'-'+(state.tf||'view')+'.png'; a.click();
+  const a=document.createElement('a'); a.href=c.toDataURL('image/png');
+  a.download='goldrock-'+(state.compare?'compare':state.metal)+'-'+(state.view?'custom':(state.tf||'view'))+'.png'; a.click();
 }
 document.getElementById('dl-chart').addEventListener('click',exportChart);
+
+// deep links: ?metal=silver&tf=5Y&compare=1&ratio=1 opens the chart in that exact state
+(function(){ try{
+  const q=new URLSearchParams(location.search);
+  const m=q.get('metal'); if(m && METALS[m]) state.metal=m;
+  if(q.get('ratio')==='1') state.metal='ratio';
+  const tf=q.get('tf'); if(tf && (TF_DAYS[tf]||tf==='1D'||tf==='YTD'||tf==='MAX')) state.tf=tf;
+  if(q.get('compare')==='1'){ state.compare=true;
+    const cb=document.getElementById('cmp'); if(cb){ cb.classList.add('on'); cb.setAttribute('aria-pressed','true'); } }
+  if(q.get('real')==='1' && META.cpi){ state.real=true;
+    const rb=document.getElementById('real'); if(rb){ rb.classList.add('on'); rb.setAttribute('aria-pressed','true'); } }
+}catch(e){} })();
+// copy-link: always points at the site page, which forwards the params into the embed
+const shareBtn=document.getElementById('share');
+if(shareBtn) shareBtn.addEventListener('click',async()=>{
+  const q=new URLSearchParams();
+  if(state.metal==='ratio') q.set('ratio','1');
+  else if(state.metal!=='gold') q.set('metal',state.metal);
+  if(state.tf!=='1Y') q.set('tf',state.tf);
+  if(state.compare) q.set('compare','1');
+  if(state.real) q.set('real','1');
+  const url='https://www.goldrockmetalexchange.com/live-prices/'+(q.toString()?'?'+q.toString():'');
+  let ok=false;
+  try{ await navigator.clipboard.writeText(url); ok=true; }catch(e){}
+  if(!ok){ try{ window.prompt('Copy this link:', url); ok=true; }catch(e){} }
+  track('link_shared');
+  const old='⧉ Link'; shareBtn.textContent=ok?'✓ Copied':old;
+  setTimeout(()=>{ shareBtn.textContent=old; },1600);
+});
+// the money event: any tap on a phone number, anywhere on the page
+document.addEventListener('click',e=>{ const a=e.target && e.target.closest && e.target.closest('a[href^="tel:"]');
+  if(a) track('call_click'); },true);
 
 // keyboard access: focus the chart, arrows move a readout cursor, +/- zoom, Esc/Home reset
 let kbIdx=-1;
@@ -786,35 +1324,116 @@ cv.addEventListener('keydown',e=>{
   if(!view) return; const pts=view.pts;
   if(e.key==='ArrowLeft'||e.key==='ArrowRight'){ e.preventDefault(); setActive(true);
     if(kbIdx<0) kbIdx=pts.length-1; kbIdx=Math.max(0,Math.min(pts.length-1,kbIdx+(e.key==='ArrowRight'?1:-1)));
-    const p=pts[kbIdx]; render();
+    const p=pts[kbIdx]; redrawBase();
     const px=view.X(p[0]),py=view.Y(p[1]),acc=METALS[state.metal].acc;
     ctx.beginPath(); ctx.moveTo(px,view.y0); ctx.lineTo(px,view.y1); ctx.strokeStyle=hexA(acc,.5); ctx.lineWidth=1; ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
     ctx.beginPath(); ctx.arc(px,py,5,0,7); ctx.fillStyle=METALS[state.metal].core; ctx.fill();
-    // sighted keyboard users get the same tooltip readout as mouse hover
+    // sighted keyboard users get the same tooltip readout as mouse hover — in BOTH modes
     document.getElementById('tip-date').textContent=fmtDateFull(p[0]);
-    document.getElementById('tip-price').textContent=fmtMoney(p[1],METALS[state.metal].decimals);
+    let say;
+    if(view.cmp){
+      const c=cmpRowsAt(p[0]);
+      for(const d2 of c.dots){ ctx.beginPath(); ctx.arc(d2.x,d2.y,4,0,7); ctx.fillStyle=METALS[d2.key].core; ctx.fill(); }
+      document.getElementById('tip-price').innerHTML=c.rows;
+      say=fmtDateFull(p[0])+' — '+c.say;
+    } else {
+      document.getElementById('tip-price').textContent=fmtVal(p[1],METALS[state.metal].decimals);
+      say=METALS[state.metal].label+' '+fmtDateFull(p[0])+': '+fmtVal(p[1],METALS[state.metal].decimals);
+    }
     tip.style.opacity=1; const tw=tip.offsetWidth,th=tip.offsetHeight;
     let tx=px+14; if(tx+tw>box.clientWidth-4) tx=px-tw-14;
     let ty=py-th-14; if(ty<2) ty=py+16; tip.style.left=tx+'px'; tip.style.top=ty+'px';
-    const say=METALS[state.metal].label+' '+fmtDateFull(p[0])+': '+fmtMoney(p[1],METALS[state.metal].decimals);
     const live=document.getElementById('a11y-live'); if(live) live.textContent=say;
   } else if(e.key==='+'||e.key==='='){ e.preventDefault(); const cr=currentRange(state.metal); const t=zoomTarget((cr.from+cr.to)/2,0.7); animateViewTo(t.from,t.to); }
   else if(e.key==='-'||e.key==='_'){ e.preventDefault(); const cr=currentRange(state.metal); const t=zoomTarget((cr.from+cr.to)/2,1.4); animateViewTo(t.from,t.to); }
   else if(e.key==='Escape'||e.key==='Home'){ e.preventDefault(); cancelViewGlide(); kbIdx=-1; tip.style.opacity=0; state.view=null; syncTfHighlight(); renderHeadline(); startAnim(); }
 });
-cv.addEventListener('blur',()=>{ tip.style.opacity=0; kbIdx=-1; if(anim>=1) render(); });
+cv.addEventListener('blur',()=>{ tip.style.opacity=0; kbIdx=-1; if(anim>=1) redrawBase(); });
 function updateA11y(){
   const el=document.getElementById('a11y-summary'); if(!el) return;
   const m=METALS[state.metal], st=computeStats(state.metal);
-  el.textContent=`${m.label}: ${fmtMoney(st.cur,m.decimals)} per troy ounce. `
+  el.textContent=`${m.label}: ${fmtVal(st.cur,m.decimals)}${isX()?' ounces of silver per ounce of gold':' per troy ounce'}. `
     +`${state.view?'Selected range':(state.tf==='MAX'?'All-time':state.tf)} change ${st.chg>=0?'up':'down'} ${Math.abs(st.pct).toFixed(2)} percent. `
     +`Range low ${fmtMoney(st.lo,m.decimals)}, high ${fmtMoney(st.hi,m.decimals)}. All-time high ${fmtMoney(st.ath,m.decimals)}.`;
 }
+
+// --- My Metals: what is MY position worth right now — device-only, ticks with live spot ---
+function holdLoad(){ try{ const v=JSON.parse(localStorage.getItem('gr-holdings')||'{}');
+  return (v && typeof v==='object' && !Array.isArray(v)) ? v : {}; }catch(e){ return {}; } }
+function holdSave(h){ try{ localStorage.setItem('gr-holdings',JSON.stringify(h)); }catch(e){} }
+function renderHoldings(){
+  const outEl=document.getElementById('hold-out'), cta=document.getElementById('hold-cta');
+  if(!outEl) return;
+  const h=holdLoad(); let tot=0, tot0=0;
+  for(const k of ['gold','silver','platinum']){ const oz=+h[k]||0; if(oz<=0) continue;
+    const cur=liveSpot[k]; if(cur==null) continue;
+    tot+=oz*cur; tot0+=oz*anchorClose(k)[1];
+  }
+  if(tot<=0){ outEl.textContent=''; if(cta) cta.innerHTML=''; return; }
+  let dd=tot-tot0; if(Math.abs(dd)<0.005) dd=0;
+  const up=dd>=0;
+  let pl='';
+  const cost=+h.cost||0;                 // optional cost basis → lifetime gain/loss
+  if(cost>0){ const g=tot-cost, gup=g>=0;
+    pl=' <small class="'+(gup?'up':'down')+'">'+(gup?'▲':'▼')+' '+fmtMoney(Math.abs(g),2)
+      +' ('+(gup?'+':'−')+Math.abs(cost?g/cost*100:0).toFixed(1)+'%) since purchase</small>'; }
+  outEl.innerHTML=fmtMoneyRich(tot,2)
+    +' <small class="'+(up?'up':'down')+'">'+(up?'▲':'▼')+' '+fmtMoney(Math.abs(dd),2)+' today</small>'+pl;
+  if(cta) cta.innerHTML='Adding to your position? <a href="tel:+18888590978">Speak with a specialist — (888)&nbsp;859-0978</a>';
+}
+(function(){
+  const t=document.getElementById('hold-toggle'), c=document.getElementById('hold-card'); if(!t||!c) return;
+  t.addEventListener('click',()=>{ const open=c.hidden; c.hidden=!open; t.setAttribute('aria-expanded',String(open));
+    if(open) renderHoldings(); });
+  const h=holdLoad();
+  for(const k of ['gold','silver','platinum','cost']){ const el=document.getElementById('h-'+k); if(!el) continue;
+    if(+h[k]>0) el.value=h[k];
+    el.addEventListener('input',()=>{ const hh=holdLoad(); hh[k]=parseFloat(el.value)||0; holdSave(hh); renderHoldings(); track('holdings_used',true); });
+  }
+  if(['gold','silver','platinum'].some(k=>+h[k]>0)){ c.hidden=false; t.setAttribute('aria-expanded','true');
+    renderHoldings(); }   // liveSpot is pre-seeded from the baked build, so a value renders even before the first live tick
+})();
 
 // price-alert lead capture
 const alForm=document.getElementById('alerts-form');
 const alEl=id=>document.getElementById(id);
 function alCurrent(){ const s=series(alEl('al-metal').value); return s[s.length-1][1]; }
+// Alerts that genuinely work with zero backend: saved on this device, checked against
+// the live feed every minute while the page is open, browser notification on hit.
+function alLoad(){ try{ const v=JSON.parse(localStorage.getItem('gr-alerts')||'[]'); return Array.isArray(v)?v:[]; }catch(e){ return []; } }
+function alStore(list){ try{ const s=JSON.stringify(list.slice(-8));   // keep the NEWEST if ever over cap
+    localStorage.setItem('gr-alerts',s);
+    return localStorage.getItem('gr-alerts')===s;                      // verify — storage can be silently blocked
+  }catch(e){ return false; } }
+function renderAlertChips(){
+  const host=alEl('al-chips'); if(!host) return;
+  const list=alLoad(); host.innerHTML='';
+  list.forEach(a=>{ const m=METALS[a.metal]; if(!m) return;
+    const d=document.createElement('span'); d.className='al-chip'+(a.hit?' hit':'');
+    d.innerHTML=(a.hit?'✓ ':'')+m.label+' '+(a.dir==='above'?'≥':'≤')+' <b class="tnum">'+fmtMoney(a.target,m.decimals)+'</b>'+(a.hit?' — hit':'');
+    const x=document.createElement('button'); x.type='button'; x.setAttribute('aria-label','Remove this alert'); x.textContent='×';
+    // remove by identity, never by render-time index — another tab may have reordered the list
+    x.addEventListener('click',()=>{ alStore(alLoad().filter(a2=>a2.ts!==a.ts)); renderAlertChips(); });
+    d.appendChild(x); host.appendChild(d);
+  });
+}
+window.addEventListener('storage',e=>{ if(!e||!e.key) return;         // keep tabs in sync
+  if(e.key==='gr-alerts') renderAlertChips();
+  if(e.key==='gr-1d') idbCache=null;
+});
+function checkAlerts(){
+  const list=alLoad(); let changed=false;
+  for(const a of list){
+    if(a.hit) continue; const cur=liveSpot[a.metal]; if(cur==null) continue;
+    if((a.dir==='above'&&cur>=a.target)||(a.dir==='below'&&cur<=a.target)){
+      a.hit=true; a.hitAt=Date.now(); changed=true;
+      try{ if(window.Notification&&Notification.permission==='granted')
+        new Notification('GoldRock spot price alert',{body:METALS[a.metal].label+' just reached '+fmtMoney(a.target,METALS[a.metal].decimals)+'. Call (888) 859-0978 to act on it.'});
+      }catch(e){}
+    }
+  }
+  if(changed){ alStore(list); renderAlertChips(); }
+}
 function alResolve(){          // -> {cur, target, pct, dir, unit, valid, empty}
   const cur=alCurrent(), dir=alEl('al-dir').value, unit=alEl('al-unit').value, v=parseFloat(alEl('al-value').value);
   if(!v || v<=0) return {cur, empty:true};
@@ -835,9 +1454,10 @@ function updateAlertFeedback(){
     else { fb.innerHTML=`${METALS[metal].label} spot is already ${r.dir==='above'?'above':'below'} <b>${fmtMoney(r.target,dec)}</b> (now ${fmtMoney(r.cur,dec)}). Try a ${r.dir==='above'?'higher':'lower'} spot price, or switch direction.`; }
     return; }
   const move=Math.abs(r.target-r.cur);
-  fb.innerHTML=`${METALS[metal].label} spot is <b>${fmtMoney(r.cur,dec)}</b> today — we’ll notify you when it ${r.dir==='above'?'rises':'falls'} <b>${r.pct.toFixed(1)}%</b> (${fmtMoney(move,dec)}) to <b>${fmtMoney(r.target,dec)}</b>.`;
+  fb.innerHTML=`${METALS[metal].label} spot is <b>${fmtMoney(r.cur,dec)}</b> today — we’ll flag it the moment it ${r.dir==='above'?'rises':'falls'} <b>${r.pct.toFixed(1)}%</b> (${fmtMoney(move,dec)}) to <b>${fmtMoney(r.target,dec)}</b>.`;
 }
-function syncAlertMetal(){ const am=alEl('al-metal'); if(am && am.value!==state.metal){ am.value=state.metal; fillAlertPlaceholder(); updateAlertFeedback(); } }
+function syncAlertMetal(){ if(isX()) return;   // the alert form has no "ratio" option
+  const am=alEl('al-metal'); if(am && am.value!==state.metal){ am.value=state.metal; fillAlertPlaceholder(); updateAlertFeedback(); } }
 if(alForm){
   ['al-metal','al-dir'].forEach(id=>alEl(id).addEventListener('change',()=>{
     if(alEl('al-unit').value==='usd'){ const v=alEl('al-value');    // refresh the suggestion, but never a hand-typed value
@@ -847,30 +1467,43 @@ if(alForm){
     v.value = alEl('al-unit').value==='pct' ? '5' : alSuggest(); alAuto=+v.value;
     fillAlertPlaceholder(); updateAlertFeedback(); });
   alEl('al-value').addEventListener('input',updateAlertFeedback);
-  fillAlertPlaceholder(); updateAlertFeedback();
+  fillAlertPlaceholder(); updateAlertFeedback(); renderAlertChips();
   alForm.addEventListener('submit',async e=>{
     e.preventDefault();
     const metal=alEl('al-metal').value, email=alEl('al-email').value.trim(), r=alResolve(), dec=METALS[metal].decimals;
+    const phone=alEl('al-phone')?alEl('al-phone').value.trim():'';
     const msg=alEl('alerts-msg');
     if(r.empty||!email){ msg.className='alerts-msg err'; msg.textContent='Enter an amount and your email.'; return; }
     if(!r.valid){ msg.className='alerts-msg err'; msg.textContent='That target isn’t reachable from today’s spot — adjust it and try again.'; return; }
     const nice='when '+METALS[metal].label+' '+(r.dir==='above'?'rises':'falls')+' to '+fmtMoney(r.target,dec)+' ('+(r.dir==='above'?'+':'−')+r.pct.toFixed(1)+'%)';
-    const payload={metal,direction:r.dir,unit:r.unit,value:parseFloat(alEl('al-value').value),target:+r.target.toFixed(2),pct:+r.pct.toFixed(2),email,source:'goldrock-price-chart',ts:new Date().toISOString()};
+    const payload={metal,direction:r.dir,unit:r.unit,value:parseFloat(alEl('al-value').value),target:+r.target.toFixed(2),pct:+r.pct.toFixed(2),email,phone,source:'goldrock-price-chart',ts:new Date().toISOString()};
     try{
       if(CONFIG.alertsEndpoint){
         const rr=await fetch(CONFIG.alertsEndpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
         if(!rr.ok) throw 0;
         msg.className='alerts-msg ok'; msg.textContent='You’re set — we’ll email '+email+' '+nice+'.'; alForm.reset(); fillAlertPlaceholder(); updateAlertFeedback();
-      } else if(CONFIG.contactEmail){
-        const mail='mailto:'+CONFIG.contactEmail+'?subject='+encodeURIComponent('Price alert: '+METALS[metal].label)
-          +'&body='+encodeURIComponent('Please alert me '+nice+'.\nMy email: '+email);
-        window.location.href=mail;
-        // a mail app may or may not open — never show a success state we can't verify
-        msg.className='alerts-msg'; msg.innerHTML='Almost done — press <b>Send</b> in the email draft that just opened. '
-          +'Nothing opened? Email <a href="'+mail+'" style="color:var(--gold-bright)">'+CONFIG.contactEmail+'</a> '
-          +'or call <a href="tel:+18888590978" style="color:var(--gold-bright)">(888)&nbsp;859-0978</a> and we’ll set it up.';
       } else {
-        msg.className='alerts-msg ok'; msg.textContent='Thanks — call (888) 859-0978 to activate your alert and a specialist will confirm it.';
+        // no backend yet — the alert still WORKS: saved locally, watched by the live
+        // feed while the page is open. mailto is demoted to an optional copy.
+        const mail=CONFIG.contactEmail?('mailto:'+CONFIG.contactEmail+'?subject='+encodeURIComponent('Price alert: '+METALS[metal].label)
+          +'&body='+encodeURIComponent('Please alert me '+nice+'.\nMy email: '+email+(phone?'\nMy phone: '+phone:''))):'';
+        if(alLoad().length>=8){ msg.className='alerts-msg err';
+          msg.textContent='You have 8 alerts saved on this device — remove one below first.'; return; }
+        const list=alLoad(); list.push({metal,dir:r.dir,target:+r.target.toFixed(2),email,phone,ts:Date.now()});
+        if(!alStore(list)){   // storage blocked (private mode / third-party data blocked) — never claim success
+          msg.className='alerts-msg err';
+          msg.innerHTML='Your browser is blocking on-device storage, so this page can’t watch the price for you. '
+            +'Call <a href="tel:+18888590978" style="color:var(--gold-bright)">(888)&nbsp;859-0978</a>'
+            +(mail?' or <a href="'+mail+'" style="color:var(--gold-bright)">email us your alert</a>':'')+' and we’ll set it up.';
+          return; }
+        renderAlertChips(); track('alert_saved');
+        // Notification permission can't be granted inside a cross-origin iframe — only ask standalone
+        try{ if(window.self===window.top && window.Notification && Notification.permission==='default') Notification.requestPermission(); }catch(nerr){}
+        msg.className='alerts-msg ok';
+        msg.innerHTML='Alert saved — this page watches the spot price for you while it’s open. '
+          +'Want it watched around the clock? Call <a href="tel:+18888590978" style="color:var(--gold-bright)">(888)&nbsp;859-0978</a>'
+          +(mail?' or <a href="'+mail+'" style="color:var(--gold-bright)">email us a copy</a>.':'.');
+        alForm.reset(); alEl('al-value').value='5'; fillAlertPlaceholder(); updateAlertFeedback();
       }
     }catch(err){ msg.className='alerts-msg err'; msg.textContent='Something went wrong — please call (888) 859-0978.'; }
   });
@@ -879,14 +1512,62 @@ if(alForm){
 let rt=null;
 new ResizeObserver(()=>{clearTimeout(rt);rt=setTimeout(()=>render(),90);}).observe(box);
 document.getElementById('yr').textContent=new Date().getFullYear();
+applyAccent(state.metal); syncTfHighlight();   // deep links may have changed tf — the static 1Y default must not linger
+// standalone header: on when we're the whole page (or the embedder asks via ?header=1);
+// off when the parent page already provides the site header
+(function(){
+  const sh=document.getElementById('sitehead'); if(!sh) return;
+  let want=window.self===window.top;
+  try{ if(new URLSearchParams(location.search).get('header')==='1') want=true; }catch(e){}
+  if(want){ sh.hidden=false;
+    const tb=document.querySelector('.topbar'); if(tb) tb.style.display='none'; }   // no double phone rows
+})();
+const mn=document.getElementById('marketnote'); if(mn && META.note) mn.textContent=META.note;
+// milestone banner — only when a genuine, factual milestone is true right now
+function renderMilestone(){
+  const el=document.getElementById('milestone'); if(!el) return;
+  let txt='';
+  try{
+    const cur=liveSpot.gold;
+    if(cur){ let ath=cur; for(const p of DATA.gold) if(p[1]>ath) ath=p[1];
+      const gap=(1-cur/ath)*100;
+      if(cur>=ath) txt='Gold set a new all-time high today.';
+      else if(gap<=3) txt='Gold is within '+gap.toFixed(1)+'% of its all-time high.';
+    }
+    if(!txt){ const pc=ratioPercentile();
+      if(pc!=null && pc>=90) txt='The gold:silver ratio is higher today than '+pc+'% of all days on record.';
+      else if(pc!=null && pc<=10) txt='The gold:silver ratio is lower today than '+(100-pc)+'% of all days on record.'; }
+  }catch(e){}
+  el.innerHTML=txt?('<span>◆</span>'+txt):'';
+}
+// returning visitors get a personal delta — device-only, like everything else here
+(function(){ try{
+  const prev=JSON.parse(localStorage.getItem('gr-visit')||'null');
+  localStorage.setItem('gr-visit',JSON.stringify({ts:Date.now(), gold:liveSpot.gold}));
+  if(prev && typeof prev.gold==='number' && prev.gold>0 && liveSpot.gold){
+    const age=Date.now()-prev.ts;
+    if(age>6*3600000 && age<45*86400000){
+      const pc=(liveSpot.gold/prev.gold-1)*100;
+      if(Math.abs(pc)>=0.05 && mn){
+        const d=new Date(prev.ts);
+        const when=age<36*3600000?'yesterday':(age<7*86400000
+          ? d.toLocaleDateString('en-US',{weekday:'long'})
+          : d.toLocaleDateString('en-US',{month:'short',day:'numeric'}));
+        mn.textContent=(META.note?META.note+' ':'')+'Gold is '+(pc>=0?'up ':'down ')+Math.abs(pc).toFixed(1)+'% since your last visit '+when+'.';
+      } } }
+}catch(e){} })();
+renderMilestone();
 renderSelector(); renderHeadline(); renderNote(); render(); startAnim(); setLive(false);
 refreshLive();
 let liveTick=0;
 setInterval(()=>{ liveTick++;
   if(document.hidden) return;                          // never poll a tab nobody is looking at
-  if(liveFails>=3 && liveTick%3!==0) return;           // feed down → back off to every 3 minutes
+  let period=4;                                        // 60s baseline (15s ticks)
+  if(state.tf==='1D'||chartActive) period=2;           // engaged or watching today: 30s
+  if(liveFails>=3) period=12;                          // feed down → back off to 3 minutes
+  if(liveTick%period!==0) return;
   refreshLive();
-},60000);
+},15000);
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) refreshLive(); });   // instant catch-up on return
 
 // Seamless full-page embed: match the parent's viewport for the hero, and tell the
@@ -894,9 +1575,10 @@ document.addEventListener('visibilitychange',()=>{ if(!document.hidden) refreshL
 (function(){
   if(window.self===window.top) return;                 // only when embedded
   const stage=document.querySelector('.stage');
-  // A position:fixed button can't float inside a full-height seamless embed — it would render once,
-  // at the very bottom over the footer. When embedded, the page's inline CTAs carry the phone number.
-  const fab=document.querySelector('.callfab'); if(fab) fab.style.display='none';
+  // A position:fixed button can't float inside a full-height seamless embed — but we only
+  // hide ours AFTER the parent confirms (fab-ok) that it rendered a replacement. A plain
+  // iframe without the plugin keeps the in-chart button rather than losing the call CTA.
+  const fab=document.querySelector('.callfab');
   // Freeze the hero height in px IMMEDIATELY: if .stage kept min-height:100vh while the parent resizes
   // the iframe to our reported scrollHeight, each resize would grow 100vh → scrollHeight → iframe height
   // → 100vh again — an unbounded feedback loop. A frozen px height can't feed back.
@@ -912,15 +1594,19 @@ document.addEventListener('visibilitychange',()=>{ if(!document.hidden) refreshL
     const d=e.data;
     if(d && d.goldrock==='viewport' && d.height>0){ gotVP=true;
       if(stage) stage.style.minHeight=Math.max(420,Math.min(4000,d.height))+'px'; report(); }
+    if(d && d.goldrock==='fab-ok' && fab) fab.style.display='none';   // parent now floats the call button
   });
   try{ new ResizeObserver(report).observe(document.body); }catch(e){}
   window.addEventListener('load', report);
   setTimeout(report,300); setTimeout(report,1200);
+  // a fixed call button can't float inside the embed — ask the PARENT to render one
+  const FAB={goldrock:'fab', tel:'+18888590978', label:'(888) 859-0978'};
   // the parent's listener may attach after us — repeat the handshake until it answers (max ~10s)
   let tries=0; const hs=setInterval(function(){
     if(gotVP||tries++>20){ clearInterval(hs); return; }
-    parent.postMessage({goldrock:'ready'}, '*'); },500);
+    parent.postMessage({goldrock:'ready'}, '*'); parent.postMessage(FAB,'*'); },500);
   parent.postMessage({goldrock:'ready'}, '*');           // ask the parent for its viewport height
+  parent.postMessage(FAB,'*');
 })();
 </script>
 </body>

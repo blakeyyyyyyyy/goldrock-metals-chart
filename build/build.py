@@ -41,7 +41,7 @@ OUT_DIR = os.environ.get('GOLDROCK_OUT_DIR', PROJECT_DIR)
 # own output alongside the canonical one. Defaults preserve the original pipeline exactly.
 TEMPLATE_NAME = os.environ.get('GOLDROCK_TEMPLATE', 'template.html')
 INDEX_NAME = os.environ.get('GOLDROCK_INDEX', 'index.html')
-LOGO_NAME = os.environ.get('GOLDROCK_LOGO', 'logo-gold.svg')
+LOGO_NAME = os.environ.get('GOLDROCK_LOGO', 'logo-brand.png')
 CANONICAL_OUT = os.path.join(OUT_DIR, INDEX_NAME)
 MIRROR_OUT = '/tmp/goldrock-metals-chart/' + INDEX_NAME
 # Persisted per-day price snapshots — fills days the free source lags on so the

@@ -100,7 +100,7 @@
   @keyframes wmshine{0%{background-position:120% 0}55%{background-position:-80% 0}100%{background-position:-80% 0}}
   .tagline{margin-top:clamp(10px,1.8vh,20px);font-size:clamp(17px,2.1vw,27px);font-weight:400;color:#e9e3d6;
     text-shadow:0 2px 22px rgba(0,0,0,.8)}
-  .marketnote{margin-top:10px;font-size:13.5px;color:var(--muted);letter-spacing:.01em;text-shadow:0 1px 12px rgba(0,0,0,.8);min-height:0}
+  .marketnote{display:none!important;margin-top:10px;font-size:13.5px;color:var(--muted);letter-spacing:.01em;text-shadow:0 1px 12px rgba(0,0,0,.8);min-height:0}
   .marketnote:empty{display:none}
   .milestone{margin-top:12px;text-align:center;font-size:12.5px;letter-spacing:.06em;color:var(--gold-bright);
     text-shadow:0 1px 10px rgba(0,0,0,.8)}
@@ -396,7 +396,7 @@
         <div class="readout">
           <div class="livepill" id="livepill" title="Live spot price status"><span class="dot"></span><span id="livepill-txt">LIVE</span></div>
           <div class="big tnum" id="hl-price">—</div>
-          <div class="sub tnum"><span id="hl-delta">—</span><span class="rl" id="hl-range"></span><span class="rl" id="hl-today"></span></div>
+          <div class="sub tnum"><span id="hl-delta">—</span><span class="rl" id="hl-range"></span><span class="rl" id="hl-today" style="display:none"></span></div>
         </div>
       </div>
 
@@ -1262,12 +1262,7 @@ async function refreshLive(){
       if(typeof checkAlerts==='function') checkAlerts();
       if(typeof renderHoldings==='function') renderHoldings();
       if(typeof renderMilestone==='function') renderMilestone();
-      // live tab title — the price ticks even when this isn't the active tab
-      try{ const a=anchorClose('gold'), up=liveSpot.gold>=a[1];
-        const t=(up?'▲':'▼')+' $'+Math.round(liveSpot.gold).toLocaleString('en-US')+' Gold — GoldRock';
-        if(window.self===window.top) document.title=t;
-        else parent.postMessage({goldrock:'title', text:t},'*');
-      }catch(e){}
+
       const ls=document.getElementById('livestamp');
       if(ls) ls.innerHTML='<span style="color:var(--up)">●</span> <b>Live spot as of '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'</b>';
     } else { liveFails++; if(liveFails>=2||!liveAt) setLive(false); }   // 2 strikes before downgrading the pill
